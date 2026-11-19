@@ -137,3 +137,6 @@ grant execute on function public.is_approved(), public.is_admin(),
 -- (replace the email):
 -- update public.profiles set status = 'approved', is_admin = true, reviewed_at = now()
 -- where email = 'your-email@example.com';
+
+-- Account self-service extensions are in supabase/migrations/202611200001_account_settings.sql.
+-- Run that migration after applying this initial schema to enable avatar storage and account settings.
