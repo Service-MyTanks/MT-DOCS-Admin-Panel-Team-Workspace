@@ -258,3 +258,21 @@ dialog::backdrop { background: #090c11bd; backdrop-filter: blur(4px); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+
+/* Account settings */
+.profile-identity { flex: 1; min-width: 0; }
+.profile-identity h2 { margin: 0; }
+.avatar-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+.avatar-actions > small { flex-basis: 100%; font-size: 10px; line-height: 1.5; }
+.avatar-actions input[type=file] { display: none; }
+.settings-body { max-height: min(72vh, 720px); }
+.settings-section + .settings-section { border-top: 1px solid var(--border); margin-top: 22px; padding-top: 20px; }
+.settings-section h3 { margin: 0 0 14px; font-size: 14px; font-weight: 600; }
+.settings-section .field { margin-bottom: 12px; }
+.settings-section .form-actions { margin-top: 10px; }
+.settings-current { font-size: 12px; margin: -5px 0 14px; overflow-wrap: anywhere; }
+.settings-current strong { color: var(--text); font-weight: 500; }
+.settings-hint { display: block; margin-top: 10px; color: var(--faint); font-size: 11px; }
+#account-settings-dialog { width: min(680px, calc(100% - 28px)); }
+#settings-email-locked { border-color: #51452f; background: #29261f; color: #d5c4a5; }
