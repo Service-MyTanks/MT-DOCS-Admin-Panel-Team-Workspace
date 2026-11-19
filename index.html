@@ -7,7 +7,7 @@
   <meta name="application-name" content="MT DOCS">
   <meta name="robots" content="noindex">
   <meta name="description" content="MT DOCS — служебное рабочее пространство команды MyTanks.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src https://*.supabase.co wss://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://*.supabase.co; style-src 'self'; script-src 'self'; connect-src https://*.supabase.co wss://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'">
   <title>MT DOCS · Рабочее пространство</title>
   <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
   <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
@@ -177,6 +177,43 @@
     <div class="dialog-heading"><h2 id="confirm-title">Подтвердите действие</h2><button type="button" class="icon-button" data-close aria-label="Отмена"><svg><use href="#i-close"/></svg></button></div>
     <div class="dialog-body"><p class="muted" id="confirm-text"></p></div>
     <div class="dialog-actions"><button type="button" class="button button-secondary" data-close>Отмена</button><button type="button" class="button button-danger" id="confirm-ok">Подтвердить</button></div>
+  </dialog>
+
+
+  <dialog id="account-settings-dialog" aria-labelledby="account-settings-title">
+    <div class="dialog-heading"><div><span class="eyebrow">ЛИЧНЫЕ ДАННЫЕ И БЕЗОПАСНОСТЬ</span><h2 id="account-settings-title">Настройки аккаунта</h2></div><button type="button" class="icon-button" data-close aria-label="Закрыть"><svg><use href="#i-close"/></svg></button></div>
+    <div class="dialog-body settings-body">
+      <section class="settings-section">
+        <h3>Никнейм</h3>
+        <form id="settings-nickname-form" novalidate>
+          <div class="field"><label for="settings-nickname">Отображаемое имя</label><input type="text" id="settings-nickname" minlength="2" maxlength="64" autocomplete="nickname" required></div>
+          <p class="form-message" id="settings-nickname-message" role="alert" hidden></p>
+          <div class="form-actions"><button type="submit" id="settings-nickname-submit" class="button button-primary">Сохранить никнейм</button></div>
+        </form>
+      </section>
+      <section class="settings-section">
+        <h3>Электронная почта</h3>
+        <p class="muted settings-current">Текущий адрес: <strong id="settings-current-email"></strong></p>
+        <form id="settings-email-form" novalidate>
+          <div class="field"><label for="settings-new-email">Новый адрес</label><input type="email" id="settings-new-email" maxlength="254" autocomplete="email" placeholder="name@example.com" required></div>
+          <p class="form-message" id="settings-email-locked" role="status" hidden>Служебный адрес supportmytanks@gmail.com закреплён и не может быть изменён.</p>
+          <p class="form-message" id="settings-email-message" role="alert" hidden></p>
+          <div class="form-actions"><button type="submit" id="settings-email-submit" class="button button-primary">Отправить подтверждение</button></div>
+        </form>
+        <small class="settings-hint">Почта обновится только после подтверждения нового адреса.</small>
+      </section>
+      <section class="settings-section">
+        <h3>Пароль</h3>
+        <form id="settings-password-form" novalidate>
+          <div class="field-row">
+            <div class="field"><label for="settings-new-password">Новый пароль</label><input type="password" id="settings-new-password" minlength="8" maxlength="72" autocomplete="new-password" required></div>
+            <div class="field"><label for="settings-password-repeat">Повтор пароля</label><input type="password" id="settings-password-repeat" minlength="8" maxlength="72" autocomplete="new-password" required></div>
+          </div>
+          <p class="form-message" id="settings-password-message" role="alert" hidden></p>
+          <div class="form-actions"><button type="submit" id="settings-password-submit" class="button button-primary">Сменить пароль</button></div>
+        </form>
+      </section>
+    </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" hidden></div>
