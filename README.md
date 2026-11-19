@@ -20,7 +20,7 @@ favicon*, *.png, mytanks-avatar.jpg   иконки и аватар
 
 Сайт полностью статический, все пути относительные — работает в подпапке репозитория.
 Адрес: `https://service-mytanks.github.io/MyWorkspace/`
-Репозиторий: `[Service-MyTanks/MT-DOCS-Admin-Panel-Team-Workspace](https://github.com/Service-MyTanks/MyWorkspace/)` (публичный).
+Репозиторий: `[https://github.com/Service-MyTanks/MyWorkspace/]` (публичный).
 
 1. Содержимое этой папки лежит в корне репозитория (ветка `main`).
 2. Settings → Pages → Source: **Deploy from a branch**, Branch: `main`, папка `/ (root)`.
