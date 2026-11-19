@@ -107,6 +107,7 @@ function friendlyError(error) {
   if (/password should be at least|weak password/i.test(message)) return "Пароль слишком простой. Используйте не менее 8 символов.";
   if (/rate limit|too many requests|over_email_send_rate_limit/i.test(message)) return "Слишком много попыток. Подождите несколько минут и повторите.";
   if (/same.*password|different from the old/i.test(message)) return "Новый пароль должен отличаться от текущего.";
+  if (/profiles_nickname_key|duplicate key value violates unique constraint/i.test(message)) return "Этот никнейм уже занят.";
   if (/row-level security|permission denied|недостаточно прав|42501/i.test(message)) return "Недостаточно прав для этого действия.";
   return message ? `Ошибка: ${message.slice(0, 300)}` : "Произошла неизвестная ошибка.";
 }
@@ -169,6 +170,7 @@ async function enterWorkspace() {
   } else {
     $("sidebar-nickname").textContent = profile.nickname;
     $("sidebar-position").textContent = profile.position;
+    updateAvatarImages();
     $("topbar-nickname").textContent = profile.nickname;
     showScreen("app");
     if (!parseRoute()) location.replace("#/reports");
@@ -177,6 +179,15 @@ async function enterWorkspace() {
   }
 }
 
+function avatarPublicUrl(path) {
+  if (!path) return "./mytanks-avatar.jpg";
+  const result = state.client.storage.from("avatars").getPublicUrl(path);
+  return result.data.publicUrl + "?v=" + encodeURIComponent(state.profile?.updated_at || Date.now());
+}
+function updateAvatarImages() {
+  const src = avatarPublicUrl(state.profile?.avatar_path);
+  document.querySelectorAll(".team-avatar, .topbar-avatar").forEach((image) => { image.src = src; });
+}
 async function refreshPendingBadge() {
   const badge = $("pending-badge");
   if (!state.profile?.is_admin) { badge.hidden = true; return; }
@@ -421,39 +432,95 @@ async function deleteSanction(item) {
 
 async function renderAccount(view, route, current) {
   const profile = state.profile;
-  const passwordForm = h("form", { class: "card-body stack", novalidate: true },
-    h("div", { class: "field-row" },
-      h("div", { class: "field" }, h("label", { for: "new-password" }, "Новый пароль ", h("span", { text: "*" })), h("input", { type: "password", id: "new-password", minlength: 8, maxlength: 72, autocomplete: "new-password", required: true })),
-      h("div", { class: "field" }, h("label", { for: "new-password-repeat" }, "Повтор пароля ", h("span", { text: "*" })), h("input", { type: "password", id: "new-password-repeat", minlength: 8, maxlength: 72, autocomplete: "new-password", required: true }))),
-    h("p", { class: "form-message", id: "password-message", role: "alert", hidden: true }),
-    h("div", { class: "form-actions" }, h("button", { type: "submit", class: "button button-primary" }, "Сменить пароль")));
-  passwordForm.addEventListener("submit", changePassword);
+  const avatar = h("img", { class: "profile-avatar", src: avatarPublicUrl(profile.avatar_path), alt: "Аватар " + profile.nickname, width: 64, height: 64 });
+  const avatarInput = h("input", { type: "file", id: "avatar-file", accept: "image/png,image/jpeg,image/webp", hidden: true });
+  const uploadButton = h("button", { type: "button", class: "button button-secondary small", disabled: true }, "Загрузить аватар");
+  const removeButton = h("button", { type: "button", class: "button button-secondary small", disabled: !profile.avatar_path }, "Удалить");
+  const avatarActions = h("div", { class: "avatar-actions" }, avatarInput, h("button", { type: "button", class: "button button-secondary small", onclick: () => avatarInput.click() }, "Выбрать изображение"), uploadButton, removeButton, h("small", { class: "muted", text: "PNG, JPG или WebP. До 2 МБ после обработки; изображение будет обрезано до квадрата." }));
+  avatarInput.addEventListener("change", () => {
+    const file = avatarInput.files?.[0]; if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 8 * 1024 * 1024) { showToast("Выберите PNG, JPG или WebP размером до 8 МБ."); avatarInput.value = ""; return; }
+    const reader = new FileReader(); reader.onload = () => { avatar.src = String(reader.result); uploadButton.disabled = false; }; reader.readAsDataURL(file);
+  });
+  uploadButton.addEventListener("click", () => uploadAvatar(avatarInput.files?.[0], uploadButton));
+  removeButton.addEventListener("click", () => removeAvatar(removeButton));
   const info = (label, value) => h("div", { class: "info-item" }, h("small", { text: label }), h("strong", { text: value }));
-  view.append(
-    pageHeading("ПРОФИЛЬ СОТРУДНИКА", "Личный кабинет", "Ваши данные и настройки доступа.",
-      h("button", { type: "button", class: "button button-secondary", onclick: logout }, icon("i-logout"), "Выйти")),
-    h("section", { class: "card" },
-      h("div", { class: "profile-head" }, h("img", { class: "profile-avatar", src: "./mytanks-avatar.jpg", alt: "", width: 64, height: 64 }),
-        h("div", {}, h("h2", { text: profile.nickname }), h("p", { class: "muted", text: profile.position })),
-        h("span", { class: "pill pill-success", text: profile.is_admin ? "Руководитель" : "Доступ открыт" })),
+  view.append(pageHeading("ПРОФИЛЬ СОТРУДНИКА", "Личный кабинет", "Ваши данные и настройки доступа.",
+    h("button", { type: "button", class: "button button-secondary", onclick: openAccountSettings }, icon("i-shield"), "Настройки аккаунта"),
+    h("button", { type: "button", class: "button button-secondary", onclick: logout }, icon("i-logout"), "Выйти")),
+    h("section", { class: "card" }, h("div", { class: "profile-head" }, avatar, h("div", { class: "profile-identity" }, h("h2", { text: profile.nickname }), h("p", { class: "muted", text: profile.position }), avatarActions), h("span", { class: "pill pill-success", text: profile.is_admin ? "Руководитель" : "Доступ открыт" })),
       h("div", { class: "info-grid" }, info("Почта", state.session.user.email || profile.email), info("Должность", profile.position), info("Аккаунт создан", formatDateTime(profile.created_at)), info("Одобрен", profile.reviewed_at ? formatDateTime(profile.reviewed_at) : "—")),
-      h("p", { class: "card-note", text: "Никнейм и должность меняет руководитель. Если данные устарели, сообщите ему." })),
-    h("section", { class: "card" }, h("div", { class: "card-heading" }, h("span", { class: "section-icon" }, icon("i-shield")), h("div", {}, h("h2", { text: "Безопасность" }), h("p", { text: "Смена пароля для входа в MT DOCS" }))), passwordForm));
+      h("p", { class: "card-note", text: "Никнейм, почту и пароль можно изменить в настройках аккаунта. Должность и права доступа изменяются только руководителем." })));
   if (profile.is_admin) await renderAdmin(view, current);
 }
 
+function openAccountSettings() {
+  const email = String(state.session?.user?.email || "").trim();
+  const locked = email.toLowerCase() === "supportmytanks@gmail.com";
+  $("settings-current-email").textContent = email || "—"; $("settings-new-email").value = "";
+  $("settings-new-email").disabled = locked; $("settings-email-submit").disabled = locked;
+  $("settings-email-locked").hidden = !locked;
+  $("settings-email-message").hidden = true; $("settings-nickname-message").hidden = true; $("settings-password-message").hidden = true;
+  $("settings-nickname").value = state.profile?.nickname || ""; $("account-settings-dialog").showModal();
+}
+
+async function changeNickname(event) {
+  event.preventDefault(); const nickname = $("settings-nickname").value.trim();
+  if (nickname.length < 2 || nickname.length > 64) { setMessage("settings-nickname-message", "Никнейм должен содержать от 2 до 64 символов."); return; }
+  const button = $("settings-nickname-submit"); setBusy(button, true, "Сохраняем…");
+  const { error } = await state.client.rpc("update_own_nickname", { new_nickname: nickname }); setBusy(button, false);
+  if (error) { setMessage("settings-nickname-message", friendlyError(error)); return; }
+  state.profile = await loadProfile(); $("sidebar-nickname").textContent = state.profile.nickname; $("topbar-nickname").textContent = state.profile.nickname;
+  setMessage("settings-nickname-message", "Никнейм обновлён.", "success"); showToast("Никнейм успешно изменён."); render();
+}
+
+async function requestEmailChange(event) {
+  event.preventDefault(); const current = String(state.session?.user?.email || "").trim().toLowerCase(); const email = $("settings-new-email").value.trim().toLowerCase();
+  if (current === "supportmytanks@gmail.com") { setMessage("settings-email-message", "Для этого аккаунта смена почты отключена."); return; }
+  if (!$("settings-new-email").checkValidity() || !email) { setMessage("settings-email-message", "Введите корректный новый адрес почты."); return; }
+  if (email === current) { setMessage("settings-email-message", "Новая почта совпадает с текущей."); return; }
+  if (email === "supportmytanks@gmail.com") { setMessage("settings-email-message", "Этот адрес закреплён за служебным аккаунтом."); return; }
+  const button = $("settings-email-submit"); setBusy(button, true, "Отправляем…");
+  const { error } = await state.client.auth.updateUser({ email }, { emailRedirectTo: appUrl() }); setBusy(button, false);
+  if (error) { setMessage("settings-email-message", friendlyError(error)); return; }
+  event.target.reset(); setMessage("settings-email-message", "Письмо для подтверждения отправлено на новый адрес. Почта профиля изменится после подтверждения; статус и права останутся прежними.", "success");
+}
+
+async function compressAvatar(file) {
+  const image = await new Promise((resolve, reject) => { const img = new Image(); const reader = new FileReader(); reader.onerror = () => reject(new Error("Не удалось прочитать изображение.")); reader.onload = () => { img.onerror = () => reject(new Error("Некорректный файл изображения.")); img.onload = () => resolve(img); img.src = reader.result; }; reader.readAsDataURL(file); });
+  const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 512; const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#171a20"; ctx.fillRect(0, 0, 512, 512); const side = Math.min(image.naturalWidth, image.naturalHeight);
+  ctx.drawImage(image, (image.naturalWidth - side) / 2, (image.naturalHeight - side) / 2, side, side, 0, 0, 512, 512);
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.84));
+  if (!blob || blob.size > 2 * 1024 * 1024) throw new Error("Не удалось обработать изображение до 2 МБ."); return blob;
+}
+
+async function uploadAvatar(file, button) {
+  if (!file) return; setBusy(button, true, "Загружаем…");
+  try { const blob = await compressAvatar(file); const path = state.session.user.id + "/avatar.webp";
+    const { error: uploadError } = await state.client.storage.from("avatars").upload(path, blob, { upsert: true, contentType: "image/webp", cacheControl: "3600" }); if (uploadError) throw uploadError;
+    const { error } = await state.client.rpc("set_own_avatar_path", { new_path: path }); if (error) throw error;
+    state.profile = await loadProfile(); updateAvatarImages(); showToast("Аватар обновлён."); render();
+  } catch (error) { showToast(friendlyError(error)); } finally { setBusy(button, false); }
+}
+
+async function removeAvatar(button) {
+  if (!state.profile?.avatar_path || !await confirmAction("Удалить аватар?", "Вместо фотографии будет отображаться стандартная аватарка.", "Удалить")) return;
+  setBusy(button, true, "Удаляем…"); const path = state.profile.avatar_path;
+  const { error } = await state.client.rpc("set_own_avatar_path", { new_path: null });
+  if (error) { setBusy(button, false); showToast(friendlyError(error)); return; }
+  state.profile = await loadProfile(); updateAvatarImages(); const { error: removeError } = await state.client.storage.from("avatars").remove([path]);
+  setBusy(button, false); showToast(removeError ? "Аватар отвязан, но файл не удалось удалить." : "Аватар удалён."); render();
+}
+
 async function changePassword(event) {
-  event.preventDefault();
-  const password = $("new-password").value;
-  if (password.length < 8) { setMessage("password-message", "Пароль должен содержать не менее 8 символов."); $("new-password").focus(); return; }
-  if (password !== $("new-password-repeat").value) { setMessage("password-message", "Пароли не совпадают."); $("new-password-repeat").focus(); return; }
-  const button = event.target.querySelector("button[type=submit]");
-  setBusy(button, true, "Сохраняем…");
-  const { error } = await state.client.auth.updateUser({ password });
-  setBusy(button, false);
-  if (error) { setMessage("password-message", friendlyError(error)); return; }
-  event.target.reset();
-  setMessage("password-message", "Пароль изменён.", "success");
+  event.preventDefault(); const password = $("settings-new-password").value;
+  if (password.length < 8) { setMessage("settings-password-message", "Пароль должен содержать не менее 8 символов."); return; }
+  if (password !== $("settings-password-repeat").value) { setMessage("settings-password-message", "Пароли не совпадают."); return; }
+  const button = $("settings-password-submit"); setBusy(button, true, "Сохраняем…");
+  const { error } = await state.client.auth.updateUser({ password }); setBusy(button, false);
+  if (error) { setMessage("settings-password-message", friendlyError(error)); return; }
+  event.target.reset(); setMessage("settings-password-message", "Пароль изменён.", "success");
 }
 
 async function renderAdmin(view, current) {
@@ -584,6 +651,9 @@ function bindApp() {
     $("monitoring-items").hidden = !expanded;
   });
   $("sanction-form").addEventListener("submit", submitSanction);
+  $("settings-nickname-form").addEventListener("submit", changeNickname);
+  $("settings-email-form").addEventListener("submit", requestEmailChange);
+  $("settings-password-form").addEventListener("submit", changePassword);
   $("sanction-permanent").addEventListener("change", (event) => {
     $("sanction-duration").disabled = event.target.checked;
     $("sanction-unit").disabled = event.target.checked;
