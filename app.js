@@ -12,6 +12,16 @@ const KINDS = {
   warning: { title: "Мои предупреждения", one: "Предупреждение", add: "Добавить предупреждение", icon: "i-warning", hint: "Устные и письменные предупреждения" },
 };
 
+// Единый список должностей (иерархия из 6 уровней). Должен совпадать с <select id="register-position"> в index.html.
+const POSITIONS = Object.freeze([
+  "Младший Хелпер", "Хелпер",
+  "Младший модератор", "Модератор", "Старший модератор", "Администратор", "Старший администратор",
+  "Тестировщик", "Медиа-продакшн", "Технический специалист", "Следящий за форумом", "Старший следящий за форумом", "Следящий за битвами", "Старший следящий за битвами",
+  "Зам.куратора технических специалистов", "Куратор технических специалистов", "Зам куратора администрации", "Куратор администрации", "Заместитель Куратора Агентов Поддержки", "Куратор Агентов Поддержки",
+  "Заместитель главного администратора", "Главный администратор",
+  "Заместитель Специального Администратора", "Специальный Администратор",
+]);
+
 const state = { client: null, session: null, profile: null, renderId: 0, sanctionKind: "ban", recovery: false };
 
 function h(tag, props, ...children) {
@@ -92,7 +102,7 @@ function friendlyError(error) {
   if (/failed to fetch|networkerror|load failed|network request failed/i.test(message)) return "Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.";
   if (/invalid login credentials/i.test(message)) return "Неверная почта или пароль.";
   if (/email not confirmed/i.test(message)) return "Почта не подтверждена. Откройте письмо от MT DOCS и перейдите по ссылке.";
-  if (/database error saving new user/i.test(message)) return "Не удалось создать аккаунт: такой никнейм уже занят или данные некорректны.";
+  if (/database error saving new user/i.test(message)) return "Не удалось создать аккаунт: никнейм уже занят или данные некорректны. Если повторяется — сообщите руководителю.";
   if (/user already registered/i.test(message)) return "Аккаунт с этой почтой уже существует. Войдите или восстановите пароль.";
   if (/password should be at least|weak password/i.test(message)) return "Пароль слишком простой. Используйте не менее 8 символов.";
   if (/rate limit|too many requests|over_email_send_rate_limit/i.test(message)) return "Слишком много попыток. Подождите несколько минут и повторите.";
@@ -369,7 +379,7 @@ function readSanction() {
     if (duration > MAX_SANCTION_MINUTES) return { error: "Срок не может превышать 10 лет. Для бессрочного бана отметьте «Навсегда».", focus: "sanction-duration" };
   }
   if (evidence && !isHttpUrl(evidence)) return { error: "Ссылка должна начинаться с http:// или https:// и не содержать пробелов.", focus: "sanction-evidence" };
-  return { row: { kind: state.sanctionKind, player_nickname: player, reason, duration_minutes: duration, is_permanent: permanent, evidence_url: evidence || null, comment: comment || null, issued_at: issued.toISOString() } };
+  return { row: { kind: state.sanctionKind, user_id: state.session.user.id, player_nickname: player, reason, duration_minutes: duration, is_permanent: permanent, evidence_url: evidence || null, comment: comment || null, issued_at: issued.toISOString() } };
 }
 
 async function submitSanction(event) {
@@ -526,7 +536,7 @@ function bindAuthForms() {
     const password = $("register-password").value;
     const fail = (text, id) => { setMessage("register-message", text); $(id).focus(); };
     if (nickname.length < 2) return fail("Никнейм должен содержать от 2 до 64 символов.", "register-nickname");
-    if (!position) return fail("Выберите должность.", "register-position");
+    if (!position || !POSITIONS.includes(position)) return fail("Выберите должность из списка.", "register-position");
     if (!email || !$("register-email").checkValidity()) return fail("Введите корректную почту.", "register-email");
     if (password.length < 8) return fail("Пароль должен содержать не менее 8 символов.", "register-password");
     if (password !== $("register-password-repeat").value) return fail("Пароли не совпадают.", "register-password-repeat");
