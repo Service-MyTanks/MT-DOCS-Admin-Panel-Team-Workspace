@@ -277,11 +277,58 @@ async function render() {
 }
 
 async function renderTraining(view, route) {
+  if (route.sectionKey !== "administration") {
+    view.append(
+      pageHeading("БАЗА ЗНАНИЙ", route.section, "Обучающие материалы для команды MyTanks."),
+      h("section", { class: "card" },
+        emptyBlock("i-doc", "Материалы скоро появятся", "Этот раздел уже подготовлен. Содержимое будет добавлено позднее.")
+      )
+    );
+    return;
+  }
+
+  const forum = "https://forum.mytanks.net/index.php";
+  const links = {
+    positions: forum + "?threads/ЗНАЧЕНИЕ-ДОЛЖНОСТЕЙ-В-ИЕРАРХИИ.1167/",
+    hierarchy: forum + "?threads/📊-ОФИЦИАЛЬНАЯ-ТАБЛИЦА-ИЕРАРХИИ-ДОЛЖНОСТЕЙ-ПРОЕКТА-mytanks.1281/",
+    rewards: forum + "?threads/Система-нормативов-и-вознаграждений.1311/",
+    playerRules: forum + "?threads/🚜-ОБЩИЕ-ПРАВИЛА-ЗАПРЕТЫ-И-НАКАЗАНИЯ-ДЛЯ-ИГРОКОВ-СЕРВЕРА-mytanks.1198/",
+    helperRules: forum + "?threads/📑-ПРАВИЛА-И-ОБЯЗАННОСТИ-ХЭЛПЕРОВ-mytanks.1186/",
+    adminRules: forum + "?threads/📑-ПРАВИЛА-И-ОБЯЗАННОСТИ-АДМИНИСТРАЦИИ-mytanks.1185/",
+    textAttestation: forum + "?forums/Регламент-текстовой-аттестации.64/",
+    audioMeeting: forum + "?forums/Регламент-аудиосозвона.63/",
+    applications: forum + "?forums/SHABLONY-ZAYAVLENIY/",
+    requests: forum + "?forums/SHABLONY-FORM-I-PROSHENIYA/"
+  };
+
+  const card = (title, description, iconName, items, note) => h("section", { class: "card" },
+    h("div", { class: "card-heading" },
+      h("span", { class: "section-icon" }, icon(iconName)),
+      h("div", {}, h("h2", { text: title }), h("p", { text: description }))),
+    h("div", { class: "row-list" }, ...items),
+    note ? h("p", { class: "training-explainer", text: note }) : null
+  );
+
   view.append(
-    pageHeading("БАЗА ЗНАНИЙ", route.section, "Обучающие материалы для команды MyTanks."),
-    h("section", { class: "card" },
-      emptyBlock("i-doc", "Материалы скоро появятся", "Этот раздел уже подготовлен. Содержимое будет добавлено позднее.")
-    )
+    pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", route.section, "Последовательная подготовка к работе в административном аппарате MyTanks."),
+    card("1. Начальный этап — Знакомство со структурой", "Изучите иерархию проекта, значения должностей и систему нормативов.", "i-book-open", [
+      rowLink({ href: links.positions, iconName: "i-doc", title: "Значение должностей", text: "Первый обязательный материал для каждого новичка — знакомство с иерархией и смыслом должностей.", external: true }),
+      rowLink({ href: links.hierarchy, iconName: "i-list", title: "Официальная таблица иерархий и должностей", text: "Актуальная таблица должностей и структуры проекта MyTanks.", external: true }),
+      rowLink({ href: links.rewards, iconName: "i-award", title: "Система нормативов и вознаграждений", text: "Нормативы работы сотрудников и предусмотренные вознаграждения.", external: true })
+    ]),
+    card("2. Промежуточный этап — Работа с обращениями", "Изучите правила проекта и обязанности сотрудников перед началом самостоятельной работы.", "i-message", [
+      rowLink({ href: links.playerRules, iconName: "i-shield", title: "Правила для игроков", text: "Общие правила, запреты и наказания на сервере MyTanks.", external: true }),
+      rowLink({ href: links.helperRules, iconName: "i-user", title: "Правила для агентов поддержки (хелперов)", text: "Обязанности и правила работы агентов поддержки.", external: true }),
+      rowLink({ href: links.adminRules, iconName: "i-briefcase", title: "Правила для администрации проекта", text: "Регламент работы и обязанности администрации.", external: true })
+    ], "Работа с обращениями подразумевает ответы на темы игроков в соответствующих ветках форума, таких как:\n\n1. Ветка «Жалобы»: только жалобы на игроков.\n2. Ветка «Обсуждение игры».\n3. Ветка «Вопрос & Ответ».\n4. Ветка «Идеи и Предложения».\n5. Ветка «Проблемы и Решения».\n6. Ветка «Предложения по улучшению».\n\nЗона вашей ответственности разграничивается в строгом соответствии с вашей должностью, должностные обязанности которой описаны в разделе «Значение должностей». Вы также можете запросить подробное описание у Главного Администратора, Специального Администратора и их заместителей. К примеру, Хелпер не несёт ответственность за ветку «Идеи и Предложения», зато отвечает за «Вопрос & Ответ». Остальные вопросы вы можете задать вышеперечисленным людям. Удачи!"),
+    card("3. Финальный этап — Регламенты", "Порядок приёма кандидатов и прохождения аттестации.", "i-clipboard", [
+      rowLink({ href: links.textAttestation, iconName: "i-file-text", title: "Регламент текстовой аттестации", text: "Раздел с правилами и материалами текстовой аттестации.", external: true }),
+      rowLink({ href: links.audioMeeting, iconName: "i-headphones", title: "Регламент аудиосозвона", text: "Раздел с правилами проведения аудиосозвона.", external: true })
+    ], "Обязательно изучите все темы, содержащиеся в этих разделах!"),
+    card("3. Финальный этап — Шаблоны заявлений и форм прошения", "Используйте утверждённые шаблоны при подаче заявлений и обращений.", "i-file-text", [
+      rowLink({ href: links.applications, iconName: "i-file-text", title: "Шаблоны заявлений", text: "Утверждённые формы заявлений.", external: true }),
+      rowLink({ href: links.requests, iconName: "i-edit", title: "Шаблоны форм прошения", text: "Утверждённые формы прошений.", external: true })
+    ])
   );
 }
 
