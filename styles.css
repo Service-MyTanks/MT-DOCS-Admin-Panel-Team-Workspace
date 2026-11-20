@@ -622,10 +622,7 @@ html[data-theme="new-year"] body::before {
   from { background-position: 0 -230px, 0 -290px, 0 -260px, 0 -330px, 0 -300px, 0 -360px; }
   to { background-position: 35px 920px, -45px 1160px, 28px 1040px, -35px 1320px, 42px 1200px, -50px 1440px; }
 }
-html[data-theme="new-year"] .workspace,
-html[data-theme="new-year"] .sidebar,
-html[data-theme="new-year"] dialog,
-html[data-theme="new-year"] .toast { position: relative; }
+/* Keep the fixed sidebar, native dialogs and fixed toast in their original positioning contexts. */
 html[data-theme="new-year"] .sidebar { overflow-x: hidden; }
 html[data-theme="new-year"] .card {
   position: relative;
