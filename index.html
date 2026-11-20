@@ -127,7 +127,15 @@
           </div>
         </div>
         <div class="nav-group">
-          <button type="button" class="nav-item nav-toggle" id="training-toggle" aria-expanded="true" aria-controls="training-items"><svg><use href="#i-book-open"/></svg>Обучение<svg class="chevron"><use href="#i-chevron"/></svg></button>
+          <div class="nav-group-heading">
+            <button type="button" class="nav-item nav-toggle" id="training-toggle" aria-expanded="true" aria-controls="training-items"><svg><use href="#i-book-open"/></svg>Обучение<svg class="chevron"><use href="#i-chevron"/></svg></button>
+            <button type="button" class="training-settings-trigger" id="training-settings-trigger" aria-label="Настройки отображения обучения" aria-haspopup="true" aria-expanded="false" aria-controls="training-settings-popover"><svg><use href="#i-settings"/></svg></button>
+            <div class="training-settings-popover" id="training-settings-popover" hidden>
+              <div class="training-settings-title">Отображение обучения</div>
+              <label class="training-mode-option"><input type="radio" name="training-view-mode" value="standard"><span><strong>Стандартный вид</strong><small>Статичное отображение разделов</small></span><span class="training-mode-check"></span></label>
+              <label class="training-mode-option"><input type="radio" name="training-view-mode" value="presentation"><span><strong>Вид презентации</strong><small>Анимация и перелистывание карточек</small></span><span class="training-mode-check"></span></label>
+            </div>
+          </div>
           <div class="nav-sub" id="training-items">
             <a class="nav-item" href="#/training/gameplay" data-training-nav="gameplay"><svg><use href="#i-monitor"/></svg>Игровой процесс</a>
             <a class="nav-item" href="#/training/forum" data-training-nav="forum"><svg><use href="#i-doc"/></svg>Работа с форумом</a>
