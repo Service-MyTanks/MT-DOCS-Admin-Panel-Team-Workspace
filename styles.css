@@ -586,3 +586,141 @@ html[data-theme="new-year"] .card { border-color: #344d42; }
   .theme-choice-grid { grid-template-columns: 1fr; gap: 8px; }
   .theme-choice { padding: 9px; }
 }
+
+
+/* ── Global New Year atmosphere ───────────────────────────────────────── */
+html[data-theme="new-year"] {
+  --holiday-red: #c85b60;
+  --holiday-green: #7eae8c;
+  --holiday-gold: #e3c27e;
+}
+html[data-theme="new-year"] body {
+  position: relative;
+  background-image:
+    radial-gradient(ellipse at 90% 0%, #25453866 0, transparent 38%),
+    radial-gradient(ellipse at 0% 100%, #6d263033 0, transparent 34%);
+}
+html[data-theme="new-year"] body::before {
+  content: "";
+  position: fixed;
+  inset: -12vh 0 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: .68;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #fff 98%, transparent),
+    radial-gradient(2px 2px at 80px 90px, #ffffffd9 98%, transparent),
+    radial-gradient(1.5px 1.5px at 150px 40px, #fff 98%, transparent),
+    radial-gradient(2.5px 2.5px at 220px 150px, #ffffffd9 98%, transparent),
+    radial-gradient(1.5px 1.5px at 300px 80px, #fff 98%, transparent),
+    radial-gradient(2px 2px at 360px 190px, #ffffffd9 98%, transparent);
+  background-size: 390px 230px, 470px 290px, 330px 260px, 520px 330px, 410px 300px, 570px 360px;
+  background-repeat: repeat;
+  animation: holiday-snow-fall 18s linear infinite;
+}
+@keyframes holiday-snow-fall {
+  from { background-position: 0 -230px, 0 -290px, 0 -260px, 0 -330px, 0 -300px, 0 -360px; }
+  to { background-position: 35px 920px, -45px 1160px, 28px 1040px, -35px 1320px, 42px 1200px, -50px 1440px; }
+}
+html[data-theme="new-year"] .workspace,
+html[data-theme="new-year"] .sidebar,
+html[data-theme="new-year"] dialog,
+html[data-theme="new-year"] .toast { position: relative; }
+html[data-theme="new-year"] .sidebar { overflow-x: hidden; }
+html[data-theme="new-year"] .card {
+  position: relative;
+  border-color: #344d42;
+  box-shadow: 0 5px 22px #07130e22;
+}
+html[data-theme="new-year"] .card::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 13px;
+  opacity: .8;
+  background:
+    radial-gradient(circle at 8px 7px, #d66b68 0 3px, transparent 3.6px),
+    radial-gradient(circle at 30px 7px, #e3c27e 0 3px, transparent 3.6px),
+    radial-gradient(circle at 52px 7px, #83b99a 0 3px, transparent 3.6px),
+    linear-gradient(#78947c, #78947c) 0 2px / 100% 1px no-repeat;
+  background-size: 66px 13px, 66px 13px, 66px 13px, 100% 1px;
+}
+html[data-theme="new-year"] .card-heading {
+  position: relative;
+  padding-top: 25px;
+  background: linear-gradient(110deg, #20352b66, transparent 70%);
+}
+html[data-theme="new-year"] .card-heading::after {
+  content: "";
+  position: absolute;
+  top: 23px;
+  right: 20px;
+  width: 31px;
+  height: 36px;
+  opacity: .82;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 48'%3E%3Cpath d='M20 2 7 19h7L4 32h12v10h8V32h12L26 19h7z' fill='%237eae8c' stroke='%23d9c18a' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M20 8v29M12 24h16' stroke='%23f0d995' stroke-width='1.5'/%3E%3Ccircle cx='20' cy='14' r='2.5' fill='%23c85b60'/%3E%3C/svg%3E");
+}
+html[data-theme="new-year"] .card:nth-of-type(3n) .card-heading::after {
+  width: 34px;
+  height: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 2v7' stroke='%23d9c18a' stroke-width='2'/%3E%3Cpath d='M20 9c-8 0-14 6-14 14s6 14 14 14 14-6 14-14S28 9 20 9Z' fill='%23b94e58' stroke='%23e4c77f' stroke-width='2'/%3E%3Cpath d='M12 15c4 3 12 3 16 0' fill='none' stroke='%23f5d9a0' stroke-width='2'/%3E%3Ccircle cx='16' cy='22' r='2' fill='%23f5d9a0'/%3E%3C/svg%3E");
+}
+html[data-theme="new-year"] .info-item {
+  position: relative;
+  padding: 10px 12px;
+  border: 1px solid #344d4238;
+  border-radius: 8px;
+  background: #20372b24;
+}
+html[data-theme="new-year"] .info-item:nth-child(3n)::after {
+  content: "";
+  position: absolute;
+  right: 9px;
+  top: 8px;
+  width: 19px;
+  height: 23px;
+  opacity: .72;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 28'%3E%3Cpath d='M12 1v5' stroke='%23d9c18a' stroke-width='1.5'/%3E%3Ccircle cx='12' cy='16' r='9' fill='%23c85b60' stroke='%23e3c27e' stroke-width='1.5'/%3E%3Cpath d='M6 12c4 2 8 2 12 0' stroke='%23f3d99c' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+html[data-theme="new-year"] .page-heading .eyebrow > span {
+  background: linear-gradient(90deg, var(--holiday-red), var(--holiday-gold), var(--holiday-green));
+}
+html[data-theme="new-year"] .section-icon,
+html[data-theme="new-year"] .row-icon {
+  border-color: #49634f;
+  background: linear-gradient(145deg, #263e31, #302b22);
+  color: var(--holiday-gold);
+}
+html[data-theme="new-year"] .button-primary {
+  background: linear-gradient(110deg, #d7b873, #e4c987);
+  border-color: #e4c987;
+}
+html[data-theme="new-year"] .card-note { border-top-color: #344d42; }
+@media (max-width: 640px) {
+  html[data-theme="new-year"] body::before { opacity: .48; }
+  html[data-theme="new-year"] .card-heading { padding-top: 22px; }
+  html[data-theme="new-year"] .card-heading::after { right: 13px; top: 21px; width: 24px; height: 29px; }
+  html[data-theme="new-year"] .info-item { padding-right: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="new-year"] body::before { animation: none; background-position: 0 0; }
+}
+
+html[data-theme="new-year"] .card:nth-of-type(2n) .card-heading::after {
+  width: 34px;
+  height: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M7 13h26v22H7z' fill='%23b94e58' stroke='%23e4c77f' stroke-width='1.8'/%3E%3Cpath d='M17 13h6v22h-6zM7 20h26' fill='%23e3c27e' stroke='%23e3c27e' stroke-width='1'/%3E%3Cpath d='M20 13c-12 0-12-10-5-9 4 1 5 9 5 9Zm0 0c12 0 12-10 5-9-4 1-5 9-5 9Z' fill='none' stroke='%23e3c27e' stroke-width='2'/%3E%3C/svg%3E");
+}
+html[data-theme="new-year"] .card-heading { padding-right: 62px; }
+@media (max-width: 640px) {
+  html[data-theme="new-year"] .card-heading { padding-right: 48px; }
+}
