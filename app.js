@@ -224,7 +224,7 @@ function setChrome(route) {
     if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
   for (const link of document.querySelectorAll("[data-training-nav]")) {
-    const active = route.page === "training" && link.dataset.trainingNav === route.sectionKey;
+    const active = ["training", "training-index"].includes(route.page) && link.dataset.trainingNav === route.sectionKey;
     link.classList.toggle("active", active);
     if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
@@ -318,6 +318,7 @@ function enhanceTrainingDeck(view, route) {
       h("span", { class: "training-progress-count", text: `1 / ${cards.length}` })
     )
   );
+  progress.querySelector(".training-progress-fill").style.width = `${100 / cards.length}%`;
   const viewport = h("div", { class: "training-slide-viewport", tabindex: "0", "aria-label": "Слайды курса. Используйте стрелки влево и вправо для навигации." });
   const slides = cards.map((card, index) => {
     const slide = h("div", { class: `training-slide${index === 0 ? " is-active" : ""}`, role: "group", "aria-roledescription": "слайд", "aria-label": `${index + 1} из ${cards.length}` }, card);
