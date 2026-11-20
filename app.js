@@ -173,7 +173,7 @@ async function enterWorkspace() {
     updateAvatarImages();
     $("topbar-nickname").textContent = profile.nickname;
     showScreen("app");
-    if (!parseRoute()) location.replace("#/reports");
+    if (location.hash !== "#/home") location.replace("#/home");
     else render();
     refreshPendingBadge();
   }
@@ -198,6 +198,7 @@ async function refreshPendingBadge() {
 
 function parseRoute() {
   const path = location.hash.replace(/^#/, "");
+  if (path === "/home") return { page: "home", crumbs: [["Главная"]] };
   if (path === "/reports") return { page: "reports", crumbs: [["Отчёты"]] };
   if (path === "/reports/mine") return { page: "my-reports", crumbs: [["Отчёты", "#/reports"], ["Мои отчёты"]] };
   if (path === "/blocks") return { page: "blocks", crumbs: [["Мониторинг игры"], ["Блокировки"]] };
@@ -215,7 +216,7 @@ function parseRoute() {
 }
 
 function setChrome(route) {
-  const nav = { reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account", training: "training" }[route.page];
+  const nav = { home: "home", reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account", training: "training" }[route.page];
   for (const link of document.querySelectorAll("[data-nav]")) {
     const active = link.dataset.nav === nav;
     link.classList.toggle("active", active);
@@ -231,7 +232,7 @@ function setChrome(route) {
     const node = last ? h("strong", { text: label }) : href ? h("a", { href, text: label }) : h("span", { class: "crumb", text: label });
     return index ? [h("span", { class: "crumb-sep", text: "/" }), node] : [node];
   }));
-  const titles = { reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section };
+  const titles = { home: "Главная", reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section };
   document.title = `${titles[route.page]} · MT DOCS`;
   closeSidebar();
 }
@@ -271,7 +272,7 @@ async function render() {
   const current = () => id === state.renderId;
   setChrome(route);
   view.replaceChildren();
-  const renderers = { reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount, training: renderTraining };
+  const renderers = { home: renderHome, reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount, training: renderTraining };
   await renderers[route.page](view, route, current);
   if (current()) view.focus({ preventScroll: true });
 }
@@ -309,7 +310,7 @@ async function renderTraining(view, route) {
       ),
       h("div", { class: "row-list training-info-list" },
         infoRow("chat", "Игровой чат", "i-message",
-          h("p", {}, h("strong", { text: "Игровой чат" }), " - чат расположенный в левой стороне игры, где активно происходит обсуждение между танкистами. Твоя первостепенная задача во время дежурства - это мониторить игровой чат на предметы: Оскорбления, Нецензурная брань, Реклама, Деструктивные и Политические темы. Подробнее о материалах (включая сообщения в игровом чате) наущающие правила игры и сообщества ты можешь узнать и прочитать в разделе обучения «Административный аппарат».")
+          h("p", {}, h("strong", { text: "Игровой чат" }), " - чат расположенный в левой части игрового экрана, с которым ты можешь взаимодействовать и где активно происходит обсуждение между танкистами. Твоя первостепенная задача во время дежурства - это мониторить игровой чат на предметы: Оскорбления, Нецензурная брань, Реклама, Деструктивные и Политические темы. Подробнее о материалах (включая сообщения в игровом чате) наущающие правила игры и сообщества ты можешь узнать и прочитать в разделе обучения «Административный аппарат».")
         ),
         infoRow("spectator", "Режим наблюдателя", "i-monitor",
           h("p", {}, "Когда тебе выдадут админ-доступ в игре, в описании и подробностях каждой нажатой тобой битвы, в правом верхнем углу, появится кнопка ", h("strong", { text: "«Spectator»" }), ", по нажатию которой, тебя загрузит в битву, но уже в режиме наблюдателя. В нём ты не можешь стрелять, ездить и писать в чат: Только наблюдать."),
@@ -462,7 +463,29 @@ async function countRows(table, filters = {}) {
   return count || 0;
 }
 
-async function renderReports(view, route, current) {
+async function renderHome(view) {
+  const actions = [
+    { title: "Новости", text: "Последние объявления и новости проекта", href: "https://forum.mytanks.net/index.php?forums/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8.37/", iconName: "i-book-open" },
+    { title: "Жалобы", text: "Раздел обращений и жалоб игроков", href: "https://forum.mytanks.net/index.php?forums/Жалобы.38/", iconName: "i-warning" },
+    { title: "Написать заявление об уходе в неактив", text: "Шаблон заявления на временный уход", href: "https://forum.mytanks.net/index.php?threads/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD-%D0%B7%D0%B0%D1%8F%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%BE%D0%B1-%D1%83%D1%85%D0%BE%D0%B4%D0%B5-%D0%B2-%D0%BD%D0%B5%D0%B0%D0%BA%D1%82%D0%B8%D0%B2.1301/", iconName: "i-clock" },
+    { title: "Написать прошение о пропуске собрания", text: "Шаблон прошения о пропуске еженедельного обзвона", href: "https://forum.mytanks.net/index.php?threads/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD-%D0%B7%D0%B0%D1%8F%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%BD%D0%B0-%D0%BF%D1%80%D0%BE%D0%BF%D1%83%D1%81%D0%BA-%D0%B5%D0%B6%D0%B5%D0%BD%D0%B5%D0%B4%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BE%D0%B1%D0%B7%D0%B2%D0%BE%D0%BD%D0%B0.1317/", iconName: "i-clock" },
+    { title: "Написать прошение о переносе собрания", text: "Шаблон прошения о переносе собрания", href: "https://forum.mytanks.net/index.php?threads/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD-%D0%BF%D1%80%D0%BE%D1%88%D0%B5%D0%BD%D0%B8%D1%8F-%D0%BE-%D0%BF%D0%B5%D1%80%D0%B5%D0%BD%D0%BE%D1%81%D0%B5-%D1%81%D0%BE%D0%B1%D1%80%D0%B0%D0%BD%D0%B8%D1%8F.1318/", iconName: "i-refresh" },
+    { title: "Шаблон ежедневного отчёта", text: "Единый универсальный шаблон для MT DOCS", href: "https://forum.mytanks.net/index.php?threads/%D0%95%D0%B4%D0%B8%D0%BD%D1%8B%D0%B9-%D1%83%D0%BD%D0%B8%D0%B2%D0%B5%D1%80%D1%81%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9-%D1%88%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD-%D0%B4%D0%BB%D1%8F-mt-docs.1320/", iconName: "i-doc" },
+    { title: "Шаблон формы на выдачу наказания", text: "Универсальный шаблон оформления наказания", href: "https://forum.mytanks.net/index.php?threads/%D0%A3%D0%BD%D0%B8%D0%B2%D0%B5%D1%80%D1%81%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9-%D1%88%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD-%D1%84%D0%BE%D1%80%D0%BC%D1%8B-%D0%BD%D0%B0-%D0%B2%D1%8B%D0%B4%D0%B0%D1%87%D1%83-%D0%BD%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%D0%BD%D0%B8%D0%B9.1319/", iconName: "i-shield" }
+  ];
+  view.append(
+    h("div", { class: "page-heading" }, h("div", {}, h("div", { class: "eyebrow" }, h("span"), "РАБОЧЕЕ ПРОСТРАНСТВО"), h("h1", { text: `Приветствую, ${state.profile?.nickname || "сотрудник"}!` }), h("p", { text: "Быстрый доступ к важным разделам и рабочим материалам." }))),
+    h("section", { class: "home-actions", "aria-label": "Быстрые действия" }, ...actions.map((action) =>
+      h("a", { class: "home-action", href: action.href, target: "_blank", rel: "noopener noreferrer" },
+        h("span", { class: "home-action-icon" }, icon(action.iconName)),
+        h("span", { class: "home-action-copy" }, h("strong", { text: action.title }), h("small", { text: action.text })),
+        icon("i-external", "home-action-arrow")
+      )
+    ))
+  );
+}
+
+function renderReports(view, route, current) {
   const mine = rowLink({ href: "#/reports/mine", iconName: "i-doc", title: "Мои отчёты", text: "История ваших ежедневных отчётов", meta: "…" });
   view.append(
     pageHeading("ОТЧЁТНОСТЬ", "Отчётность", "Ежедневные отчёты команды MyTanks."),
@@ -751,7 +774,7 @@ async function logout() {
   if (error) await state.client.auth.signOut({ scope: "local" });
   state.session = null;
   state.profile = null;
-  location.replace("#/reports");
+  location.replace("#/home");
   showScreen("login");
 }
 
@@ -829,7 +852,7 @@ function bindAuthForms() {
 }
 
 function bindApp() {
-  window.addEventListener("hashchange", () => { if (!$("app-view").hidden) { if (parseRoute()) render(); else location.replace("#/reports"); } });
+  window.addEventListener("hashchange", () => { if (!$("app-view").hidden) { if (parseRoute()) render(); else location.replace("#/home"); } });
   $("sidebar-logout").addEventListener("click", logout);
   $("menu-button").addEventListener("click", () => document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar());
   $("sidebar-backdrop").addEventListener("click", closeSidebar);
@@ -885,7 +908,7 @@ async function start() {
     if (event === "SIGNED_OUT") { state.profile = null; setTimeout(() => showScreen("login"), 0); }
   });
   const { data, error } = await state.client.auth.getSession();
-  if (/access_token|refresh_token|type=/.test(location.hash)) history.replaceState(null, "", `${appUrl()}#/reports`);
+  if (/access_token|refresh_token|type=/.test(location.hash)) history.replaceState(null, "", `${appUrl()}#/home`);
   if (error) { showScreen("login"); setMessage("login-message", friendlyError(error)); return; }
   state.session = data.session;
   if (!state.session) { showScreen("login"); if (authError) setMessage("login-message", authError); return; }
