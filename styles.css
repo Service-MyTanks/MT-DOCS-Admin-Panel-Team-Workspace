@@ -460,24 +460,30 @@ dialog::backdrop { background: #090c11bd; backdrop-filter: blur(4px); }
 }
 
 
-/* Training view mode settings popover */
-.nav-group-heading { position: relative; display: flex; align-items: center; gap: 3px; }
-.nav-group-heading > .nav-toggle { flex: 1; min-width: 0; }
-.training-settings-trigger { display: grid; flex: 0 0 34px; width: 34px; height: 36px; place-items: center; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #858d99; transition: background .15s, color .15s, border-color .15s; }
+/* Training center navigation and frameless settings window */
+.nav-group-heading { display: flex; align-items: center; gap: 3px; }
+.nav-group-heading > .nav-item { flex: 1; min-width: 0; }
+.training-settings-trigger { display: grid; flex: 0 0 34px; width: 34px; height: 36px; place-items: center; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #858d99; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
 .training-settings-trigger:hover, .training-settings-trigger[aria-expanded="true"] { border-color: var(--border); background: #1c2026; color: var(--text); }
-.training-settings-trigger svg { width: 16px; height: 16px; }
-.training-settings-popover { position: absolute; z-index: 30; top: calc(100% + 7px); right: 0; width: min(286px, calc(100vw - 48px)); padding: 13px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); box-shadow: 0 14px 36px #0008; animation: training-settings-open .16s ease-out both; }
-.training-settings-popover[hidden] { display: none; }
-@keyframes training-settings-open { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.training-settings-title { margin: 1px 2px 10px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
-.training-mode-option { display: flex; align-items: center; gap: 10px; padding: 10px 9px; border: 1px solid transparent; border-radius: 7px; cursor: pointer; transition: background .15s, border-color .15s; }
-.training-mode-option + .training-mode-option { margin-top: 4px; }
-.training-mode-option:hover { background: var(--input); }
-.training-mode-option:has(input:checked) { border-color: color-mix(in srgb, var(--accent) 38%, transparent); background: var(--accent-soft); }
-.training-mode-option input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.training-mode-option > span:nth-of-type(1) { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 4px; }
-.training-mode-option strong { color: var(--text); font-size: 11px; font-weight: 600; }
-.training-mode-option small { color: var(--muted); font-size: 9px; line-height: 1.4; }
-.training-mode-check { display: grid; width: 16px; height: 16px; flex: 0 0 16px; place-items: center; border: 1px solid var(--faint); border-radius: 50%; }
-.training-mode-option:has(input:checked) .training-mode-check { border: 5px solid var(--accent); }
-.training-mode-option:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.training-settings-trigger svg { width: 17px; height: 17px; }
+.training-settings-dialog { width: min(420px, calc(100% - 28px)); max-height: min(82vh, 560px); overflow: hidden; border: 1px solid var(--border); border-radius: 14px; background: var(--card); color: var(--text); box-shadow: 0 24px 90px #0009; }
+.training-settings-dialog[open] { display: flex; flex-direction: column; }
+.training-settings-dialog::backdrop { background: #090c11b8; backdrop-filter: blur(5px); }
+.training-settings-dialog .dialog-heading { padding: 20px 22px; }
+.training-settings-dialog .dialog-heading h2 { font-size: 17px; }
+.training-settings-body { display: grid; gap: 8px; padding: 18px 20px 20px; overflow-y: auto; overscroll-behavior: contain; }
+.training-settings-description { margin: 0 0 5px; font-size: 12px; line-height: 1.5; }
+.training-settings-dialog .training-mode-option { min-width: 0; gap: 12px; padding: 13px 12px; border: 1px solid var(--border); border-radius: 9px; background: transparent; }
+.training-settings-dialog .training-mode-option + .training-mode-option { margin-top: 0; }
+.training-settings-dialog .training-mode-option:has(input:checked) { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: var(--accent-soft); }
+.training-settings-dialog .training-mode-option > span:nth-of-type(1) { gap: 5px; }
+.training-settings-dialog .training-mode-option strong { font-size: 12px; }
+.training-settings-dialog .training-mode-option small { font-size: 11px; line-height: 1.5; }
+.training-settings-dialog .training-mode-check { width: 18px; height: 18px; flex-basis: 18px; }
+@media (max-width: 640px) {
+  .training-settings-dialog { width: calc(100% - 24px); max-width: 420px; max-height: min(78vh, 520px); margin: auto; }
+  .training-settings-dialog .dialog-heading { padding: 17px 18px; }
+  .training-settings-body { padding: 14px 14px 16px; }
+  .training-settings-dialog .training-mode-option { align-items: flex-start; padding: 12px 10px; }
+  .training-settings-dialog .training-mode-check { margin-top: 2px; }
+}
