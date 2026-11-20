@@ -277,11 +277,57 @@ async function render() {
 }
 
 async function renderTraining(view, route) {
+  if (route.sectionKey !== "administration") {
+    view.append(
+      pageHeading("БАЗА ЗНАНИЙ", route.section, "Обучающие материалы для команды MyTanks."),
+      h("section", { class: "card" },
+        emptyBlock("i-doc", "Материалы скоро появятся", "Этот раздел уже подготовлен. Содержимое будет добавлено позднее.")
+      )
+    );
+    return;
+  }
+
+  const links = {
+    positions: "https://forum.mytanks.net/index.php?threads/%D0%97%D0%9D%D0%90%D0%A7%D0%95%D0%9D%D0%98%D0%95-%D0%94%D0%9E%D0%9B%D0%96%D0%9D%D0%9E%D0%A1%D0%A2%D0%95%D0%99-%D0%92-%D0%98%D0%95%D0%A0%D0%90%D0%A0%D0%A5%D0%98%D0%98.1167/",
+    hierarchy: "https://forum.mytanks.net/index.php?threads/%F0%9F%93%8A-%D0%9E%D0%A4%D0%98%D0%A6%D0%98%D0%90%D0%9B%D0%AC%D0%9D%D0%90%D0%AF-%D0%A2%D0%90%D0%91%D0%9B%D0%98%D0%A6%D0%90-%D0%98%D0%95%D0%A0%D0%90%D0%A0%D0%A5%D0%98%D0%98-%D0%94%D0%9E%D0%9B%D0%96%D0%9D%D0%9E%D0%A1%D0%A2%D0%95%D0%99-%D0%9F%D0%A0%D0%9E%D0%95%D0%9A%D0%A2%D0%90-mytanks.1281/",
+    rewards: "https://forum.mytanks.net/index.php?threads/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BD%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%B2%D0%BE%D0%B2-%D0%B8-%D0%B2%D0%BE%D0%B7%D0%BD%D0%B0%D0%B3%D1%80%D0%B0%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D0%B9.1311/",
+    playerRules: "https://forum.mytanks.net/index.php?threads/%F0%9F%9A%9C-%D0%9E%D0%91%D0%A9%D0%98%D0%95-%D0%9F%D0%A0%D0%90%D0%92%D0%98%D0%9B%D0%90-%D0%97%D0%90%D0%9F%D0%A0%D0%95%D0%A2%D0%AB-%D0%98-%D0%9D%D0%90%D0%9A%D0%90%D0%97%D0%90%D0%9D%D0%98%D0%AF-%D0%94%D0%9B%D0%AF-%D0%98%D0%93%D0%A0%D0%9E%D0%9A%D0%9E%D0%92-%D0%A1%D0%95%D0%A0%D0%92%D0%95%D0%A0%D0%90-mytanks.1198/",
+    helperRules: "https://forum.mytanks.net/index.php?threads/%F0%9F%93%91-%D0%9F%D0%A0%D0%90%D0%92%D0%98%D0%9B%D0%90-%D0%98-%D0%9E%D0%91%D0%AF%D0%97%D0%90%D0%9D%D0%9D%D0%9E%D0%A1%D0%A2%D0%98-%D0%A5%D0%AD%D0%9B%D0%9F%D0%95%D0%A0%D0%9E%D0%92-mytanks.1186/",
+    adminRules: "https://forum.mytanks.net/index.php?threads/%F0%9F%93%91-%D0%9F%D0%A0%D0%90%D0%92%D0%98%D0%9B%D0%90-%D0%98-%D0%9E%D0%91%D0%AF%D0%97%D0%90%D0%9D%D0%9D%D0%9E%D0%A1%D0%A2%D0%98-%D0%90%D0%94%D0%9C%D0%98%D0%9D%D0%98%D0%A1%D0%A2%D0%A0%D0%90%D0%A6%D0%98%D0%98-mytanks.1185/",
+    textAttestation: "https://forum.mytanks.net/index.php?forums/%D0%A0%D0%B5%D0%B3%D0%BB%D0%B0%D0%BC%D0%B5%D0%BD%D1%82-%D1%82%D0%B5%D0%BA%D1%81%D1%82%D0%BE%D0%B2%D0%BE%D0%B9-%D0%B0%D1%82%D1%82%D0%B5%D1%81%D1%82%D0%B0%D1%86%D0%B8%D0%B8.64/",
+    audioMeeting: "https://forum.mytanks.net/index.php?forums/%D0%A0%D0%B5%D0%B3%D0%BB%D0%B0%D0%BC%D0%B5%D0%BD%D1%82-%D0%B0%D1%83%D0%B4%D0%B8%D0%BE%D1%81%D0%BE%D0%B7%D0%B2%D0%BE%D0%BD%D0%B0.63/",
+    applications: "https://forum.mytanks.net/index.php?forums/SHABLONY-ZAYAVLENIY/",
+    requests: "https://forum.mytanks.net/index.php?forums/SHABLONY-FORM-I-PROSHENIYA/"
+  };
+
+  const card = (title, description, iconName, items, note) => h("section", { class: "card" },
+    h("div", { class: "card-heading" },
+      h("span", { class: "section-icon" }, icon(iconName)),
+      h("div", {}, h("h2", { text: title }), h("p", { text: description }))),
+    h("div", { class: "row-list" }, ...items),
+    note ? h("p", { class: "training-explainer", text: note }) : null
+  );
+
   view.append(
-    pageHeading("БАЗА ЗНАНИЙ", route.section, "Обучающие материалы для команды MyTanks."),
-    h("section", { class: "card" },
-      emptyBlock("i-doc", "Материалы скоро появятся", "Этот раздел уже подготовлен. Содержимое будет добавлено позднее.")
-    )
+    pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", route.section, "Последовательная подготовка к работе в административном аппарате MyTanks."),
+    card("1. Начальный этап — Знакомство со структурой", "Изучите иерархию проекта, значения должностей и систему нормативов.", "i-book-open", [
+      rowLink({ href: links.positions, iconName: "i-doc", title: "Значение должностей", text: "Первый обязательный материал для каждого новичка — знакомство с иерархией и смыслом должностей.", external: true }),
+      rowLink({ href: links.hierarchy, iconName: "i-doc", title: "Официальная таблица иерархий и должностей", text: "Актуальная таблица должностей и структуры проекта MyTanks.", external: true }),
+      rowLink({ href: links.rewards, iconName: "i-check", title: "Система нормативов и вознаграждений", text: "Нормативы работы сотрудников и предусмотренные вознаграждения.", external: true })
+    ]),
+    card("2. Промежуточный этап — Работа с обращениями", "Изучите правила проекта и обязанности сотрудников перед началом самостоятельной работы.", "i-message", [
+      rowLink({ href: links.playerRules, iconName: "i-shield", title: "Правила для игроков", text: "Общие правила, запреты и наказания на сервере MyTanks.", external: true }),
+      rowLink({ href: links.helperRules, iconName: "i-user", title: "Правила для агентов поддержки (хелперов)", text: "Обязанности и правила работы агентов поддержки.", external: true }),
+      rowLink({ href: links.adminRules, iconName: "i-shield", title: "Правила для администрации проекта", text: "Регламент работы и обязанности администрации.", external: true })
+    ], "Работа с обращениями подразумевает ответы на темы игроков в соответствующих ветках форума, таких как:\n\n1. Ветка «Жалобы»: только жалобы на игроков.\n2. Ветка «Обсуждение игры».\n3. Ветка «Вопрос & Ответ».\n4. Ветка «Идеи и Предложения».\n5. Ветка «Проблемы и Решения».\n6. Ветка «Предложения по улучшению».\n\nЗона вашей ответственности разграничивается в строгом соответствии с вашей должностью, должностные обязанности которой описаны в разделе «Значение должностей». Вы также можете запросить подробное описание у Главного Администратора, Специального Администратора и их заместителей. К примеру, Хелпер не несёт ответственность за ветку «Идеи и Предложения», зато отвечает за «Вопрос & Ответ». Остальные вопросы вы можете задать вышеперечисленным людям. Удачи!"),
+    card("3. Финальный этап — Регламенты", "Порядок приёма кандидатов и прохождения аттестации.", "i-clipboard", [
+      rowLink({ href: links.textAttestation, iconName: "i-doc", title: "Регламент текстовой аттестации", text: "Раздел с правилами и материалами текстовой аттестации.", external: true }),
+      rowLink({ href: links.audioMeeting, iconName: "i-message", title: "Регламент аудиосозвона", text: "Раздел с правилами проведения аудиосозвона.", external: true })
+    ], "Обязательно изучите все темы, содержащиеся в этих разделах!"),
+    card("3. Финальный этап — Шаблоны заявлений и форм прошения", "Используйте утверждённые шаблоны при подаче заявлений и обращений.", "i-file-text", [
+      rowLink({ href: links.applications, iconName: "i-doc", title: "Шаблоны заявлений", text: "Утверждённые формы заявлений.", external: true }),
+      rowLink({ href: links.requests, iconName: "i-check", title: "Шаблоны форм прошения", text: "Утверждённые формы прошений.", external: true })
+    ])
   );
 }
 

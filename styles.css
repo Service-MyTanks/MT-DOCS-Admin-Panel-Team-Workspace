@@ -276,3 +276,7 @@ dialog::backdrop { background: #090c11bd; backdrop-filter: blur(4px); }
 .settings-hint { display: block; margin-top: 10px; color: var(--faint); font-size: 11px; }
 #account-settings-dialog { width: min(680px, calc(100% - 28px)); }
 #settings-email-locked { border-color: #51452f; background: #29261f; color: #d5c4a5; }
+
+
+/* Administration training content */
+.training-explainer { margin: 0; padding: 18px 22px 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.8; white-space: pre-line; }
