@@ -474,7 +474,7 @@ async function renderHome(view) {
     { title: "Шаблон формы на выдачу наказания", text: "Универсальный шаблон оформления наказания", href: "https://forum.mytanks.net/index.php?threads/%D0%A3%D0%BD%D0%B8%D0%B2%D0%B5%D1%80%D1%81%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9-%D1%88%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD-%D1%84%D0%BE%D1%80%D0%BC%D1%8B-%D0%BD%D0%B0-%D0%B2%D1%8B%D0%B4%D0%B0%D1%87%D1%83-%D0%BD%D0%B0%D0%BA%D0%B0%D0%B7%D0%B0%D0%BD%D0%B8%D0%B9.1319/", iconName: "i-shield" }
   ];
   view.append(
-    pageHeading("РАБОЧЕЕ ПРОСТРАНСТВО", `Приветствую, ${state.profile?.nickname || "сотрудник"}!`, "Быстрый доступ к важным разделам и рабочим материалам."),
+    h("div", { class: "page-heading" }, h("div", {}, h("div", { class: "eyebrow" }, h("span"), "РАБОЧЕЕ ПРОСТРАНСТВО"), h("h1", { text: `Приветствую, ${state.profile?.nickname || "сотрудник"}!` }), h("p", { text: "Быстрый доступ к важным разделам и рабочим материалам." }))),
     h("section", { class: "home-actions", "aria-label": "Быстрые действия" }, ...actions.map((action) =>
       h("a", { class: "home-action", href: action.href, target: "_blank", rel: "noopener noreferrer" },
         h("span", { class: "home-action-icon" }, icon(action.iconName)),
