@@ -199,7 +199,7 @@ async function refreshPendingBadge() {
 function parseRoute() {
   const path = location.hash.replace(/^#/, "");
   if (path === "/home") return { page: "home", crumbs: [["Главная"]] };
-  if (path === "/training") return { page: "training-index", crumbs: [["Обучение"]] };
+  if (path === "/training") return { page: "training-index", crumbs: [["Учебный центр"]] };
   if (path === "/reports") return { page: "reports", crumbs: [["Отчёты"]] };
   if (path === "/reports/mine") return { page: "my-reports", crumbs: [["Отчёты", "#/reports"], ["Мои отчёты"]] };
   if (path === "/blocks") return { page: "blocks", crumbs: [["Мониторинг игры"], ["Блокировки"]] };
@@ -212,7 +212,7 @@ function parseRoute() {
     "/training/community": "Работа с сообществом",
     "/training/administration": "Административный аппарат"
   }[path];
-  if (training) return { page: "training", section: training, sectionKey: path.split("/").pop(), crumbs: [["Обучение"], [training]] };
+  if (training) return { page: "training", section: training, sectionKey: path.split("/").pop(), crumbs: [["Учебный центр", "#/training"], [training]] };
   return null;
 }
 
@@ -233,7 +233,7 @@ function setChrome(route) {
     const node = last ? h("strong", { text: label }) : href ? h("a", { href, text: label }) : h("span", { class: "crumb", text: label });
     return index ? [h("span", { class: "crumb-sep", text: "/" }), node] : [node];
   }));
-  const titles = { home: "Главная", reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section, "training-index": "Обучение" };
+  const titles = { home: "Главная", reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section, "training-index": "Учебный центр" };
   document.title = `${titles[route.page]} · MT DOCS`;
   closeSidebar();
 }
@@ -303,25 +303,23 @@ function setTrainingViewMode(mode) {
 }
 
 function closeTrainingSettings() {
-  const popover = $("training-settings-popover");
+  const dialog = $("training-settings-dialog");
   const trigger = $("training-settings-trigger");
-  if (!popover || !trigger) return;
-  popover.hidden = true;
-  trigger.setAttribute("aria-expanded", "false");
+  if (dialog?.open) dialog.close();
+  if (trigger) trigger.setAttribute("aria-expanded", "false");
 }
 
 function toggleTrainingSettings() {
-  const popover = $("training-settings-popover");
+  const dialog = $("training-settings-dialog");
   const trigger = $("training-settings-trigger");
-  const opening = popover.hidden;
-  popover.hidden = !opening;
-  trigger.setAttribute("aria-expanded", String(opening));
-  if (opening) {
-    const mode = getTrainingViewMode();
-    document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
-      input.checked = input.value === mode;
-    });
-  }
+  if (!dialog || !trigger) return;
+  if (dialog.open) { dialog.close(); return; }
+  const mode = getTrainingViewMode();
+  dialog.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
+    input.checked = input.value === mode;
+  });
+  dialog.showModal();
+  trigger.setAttribute("aria-expanded", "true");
 }
 
 function renderTrainingIndex(view) {
@@ -332,7 +330,7 @@ function renderTrainingIndex(view) {
     ["administration", "Административный аппарат", "Структура команды, обязанности, регламенты и нормативы.", "i-shield"]
   ];
   view.append(
-    pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", "Учебный центр", "Выберите курс. Материалы открываются в формате последовательной презентации."),
+    pageHeading("УЧЕБНЫЙ ЦЕНТР", "Учебный центр", "Выберите курс. Материалы открываются в формате последовательной презентации."),
     h("div", { class: "training-course-grid" }, ...courses.map(([key, title, description, iconName], index) =>
       h("a", { class: "training-course-card", href: `#/training/${key}` },
         h("span", { class: "training-course-number", text: String(index + 1).padStart(2, "0") }),
@@ -1048,12 +1046,11 @@ function bindApp() {
   $("sidebar-logout").addEventListener("click", logout);
   $("menu-button").addEventListener("click", () => document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar());
   $("sidebar-backdrop").addEventListener("click", closeSidebar);
-  $("training-settings-trigger").addEventListener("click", (event) => { event.stopPropagation(); toggleTrainingSettings(); });
-  $("training-settings-popover").addEventListener("click", (event) => event.stopPropagation());
-  document.addEventListener("click", (event) => { if (!event.target.closest("#training-settings-popover, #training-settings-trigger")) closeTrainingSettings(); });
+  $("training-settings-trigger").addEventListener("click", toggleTrainingSettings);
+  $("training-settings-dialog").addEventListener("close", () => $("training-settings-trigger").setAttribute("aria-expanded", "false"));
   document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => input.addEventListener("change", () => setTrainingViewMode(input.value)));
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeTrainingSettings(); if (document.body.classList.contains("sidebar-open")) closeSidebar(); } });
-  for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"], ["training-toggle", "training-items"]]) {
+  for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"]]) {
     $(toggleId).addEventListener("click", () => {
       const toggle = $(toggleId);
       const expanded = toggle.getAttribute("aria-expanded") !== "true";
