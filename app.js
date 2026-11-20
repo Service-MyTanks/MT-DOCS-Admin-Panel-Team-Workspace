@@ -210,7 +210,7 @@ function parseRoute() {
     "/training/community": "Работа с сообществом",
     "/training/administration": "Административный аппарат"
   }[path];
-  if (training) return { page: "training", section: training, crumbs: [["Обучение"], [training]] };
+  if (training) return { page: "training", section: training, sectionKey: path.split("/").pop(), crumbs: [["Обучение"], [training]] };
   return null;
 }
 
@@ -218,6 +218,11 @@ function setChrome(route) {
   const nav = { reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account", training: "training" }[route.page];
   for (const link of document.querySelectorAll("[data-nav]")) {
     const active = link.dataset.nav === nav;
+    link.classList.toggle("active", active);
+    if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
+  }
+  for (const link of document.querySelectorAll("[data-training-nav]")) {
+    const active = route.page === "training" && link.dataset.trainingNav === route.sectionKey;
     link.classList.toggle("active", active);
     if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
