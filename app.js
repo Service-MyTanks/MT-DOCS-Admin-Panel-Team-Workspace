@@ -485,7 +485,7 @@ async function renderHome(view) {
   );
 }
 
-function renderReports(view, route, current) {
+async function renderReports(view, route, current) {
   const mine = rowLink({ href: "#/reports/mine", iconName: "i-doc", title: "Мои отчёты", text: "История ваших ежедневных отчётов", meta: "…" });
   view.append(
     pageHeading("ОТЧЁТНОСТЬ", "Отчётность", "Ежедневные отчёты команды MyTanks."),
