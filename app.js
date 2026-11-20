@@ -364,6 +364,52 @@ async function renderTraining(view, route) {
     return;
   }
 
+  if (route.sectionKey === "forum") {
+    const forumStageCard = (title, description, iconName, content) => h("section", { class: "card" },
+      h("div", { class: "card-heading" },
+        h("span", { class: "section-icon" }, icon(iconName)),
+        h("div", {}, h("h2", { text: title }), h("p", { text: description }))
+      ),
+      content
+    );
+
+    view.append(
+      pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", route.section, "Знакомство с форумом MyTanks и правилами работы с административными разделами."),
+      forumStageCard("1. Начальный этап — Права доступа и информация о форуме", "Познакомься с назначением форума и правилами доступа к закрытым разделам.", "i-book-open",
+        h("div", { class: "row-list training-info-list" },
+          h("div", { class: "training-info-item" },
+            h("button", { type: "button", class: "training-info-trigger", popovertarget: "forum-about-popover", "aria-label": "Открыть раздел: Что такое форум?" },
+              h("span", { class: "section-icon" }, icon("i-book-open")),
+              h("span", { class: "row-text" }, h("strong", { text: "Что такое форум?" })),
+              icon("i-chevron", "row-arrow")
+            ),
+            h("div", { id: "forum-about-popover", popover: "auto", class: "training-content-popover", role: "dialog", "aria-label": "Что такое форум?" },
+              h("p", { text: "Форум — это место или пространство где происходит весь административный процесс. Подача жалоб на игроков и администраторов, предложения по улучшению проект, проблемы (в частности баги) и их решения, а также «вопрос и ответ». Основная цель форума, сообщить и донести до администрации проекта информацию определенного типа, будто это будет жалоба на читера или сообщение о баге. Большая часть «под копотного» пространства происходит именно на форуме" })
+            )
+          ),
+          h("div", { class: "training-info-item" },
+            h("button", { type: "button", class: "training-info-trigger", popovertarget: "forum-access-popover", "aria-label": "Открыть раздел: Права доступа" },
+              h("span", { class: "section-icon" }, icon("i-lock")),
+              h("span", { class: "row-text" }, h("strong", { text: "Права доступа" })),
+              icon("i-chevron", "row-arrow")
+            ),
+            h("div", { id: "forum-access-popover", popover: "auto", class: "training-content-popover", role: "dialog", "aria-label": "Права доступа" },
+              h("p", {}, "После твоего назначения на должность «", state.profile?.position || "должность", "», тебе выдают права доступа на форуме. После получения прав доступа, у тебя появляются «админ-разделы» на домашней странице форуме. Обычные игроки не имеют доступ к ним, а также не видят их. Передача информации из админ-разделов строго запрещена! Включая слив данных, пересланные скриншоты, показ содержимого третьим лицам."),
+              h("p", {}, h("strong", { text: "За нарушение — перманентное снятие с должности!" }))
+            )
+          )
+        )
+      ),
+      forumStageCard("2. Промежуточный этап — Админ-раздел, Админ-Архив и раздел для кандидатов", "Материалы этого этапа будут добавлены отдельно.", "i-folder",
+        h("div", { class: "training-report-body" }, emptyBlock("i-doc", "Материалы скоро появятся", "Содержание промежуточного этапа будет добавлено следующим обновлением."))
+      ),
+      forumStageCard("3. Финальный этап — Работа с обращениями и создание тем", "Материалы этого этапа будут добавлены отдельно.", "i-message",
+        h("div", { class: "training-report-body" }, emptyBlock("i-doc", "Материалы скоро появятся", "Содержание финального этапа будет добавлено следующим обновлением."))
+      )
+    );
+    return;
+  }
+
   if (route.sectionKey !== "administration") {
     view.append(
       pageHeading("БАЗА ЗНАНИЙ", route.section, "Обучающие материалы для команды MyTanks."),
