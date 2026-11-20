@@ -13,10 +13,10 @@
   <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
   <link rel="shortcut icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
-  <link rel="stylesheet" href="./styles.css?v=4">
+  <link rel="stylesheet" href="./styles.css?v=5">
   <script src="./vendor/supabase.js?v=2.119.1" defer></script>
   <script src="./config.js?v=2" defer></script>
-  <script src="./app.js?v=7" defer></script>
+  <script src="./app.js?v=8" defer></script>
 </head>
 <body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -131,7 +131,6 @@
         <div class="nav-group">
           <div class="nav-group-heading">
             <a class="nav-item" href="#/training" data-nav="training"><svg><use href="#i-book-open"/></svg>Учебный центр</a>
-            <button type="button" class="training-settings-trigger" id="training-settings-trigger" aria-label="Настройки учебного центра" aria-haspopup="dialog" aria-expanded="false" aria-controls="training-settings-dialog"><svg><use href="#i-sliders"/></svg></button>
           </div>
           <div class="nav-sub" id="training-items">
             <a class="nav-item" href="#/training/gameplay" data-training-nav="gameplay"><svg><use href="#i-monitor"/></svg>Игровой процесс</a>
@@ -235,13 +234,6 @@
     </div>
   </dialog>
 
-  <dialog id="training-settings-dialog" class="training-settings-dialog" aria-labelledby="training-settings-title">
-    <div class="dialog-heading"><div><span class="eyebrow">УЧЕБНЫЙ ЦЕНТР</span><h2 id="training-settings-title">Настройки отображения</h2></div><button type="button" class="icon-button" data-close aria-label="Закрыть"><svg><use href="#i-close"/></svg></button></div>
-    <div class="dialog-body training-settings-body"><p class="muted training-settings-description">Выберите способ отображения учебных материалов.</p>
-      <label class="training-mode-option"><input type="radio" name="training-view-mode" value="standard"><span><strong>Стандартный вид</strong><small>Все разделы курса отображаются последовательно на одной странице.</small></span><span class="training-mode-check"></span></label>
-      <label class="training-mode-option"><input type="radio" name="training-view-mode" value="presentation"><span><strong>Вид презентации</strong><small>Материалы открываются карточками с анимацией перелистывания.</small></span><span class="training-mode-check"></span></label>
-    </div>
-  </dialog>
 
   <div class="toast" id="toast" role="status" hidden></div>
   <noscript><div class="notice">Для работы MT DOCS включите JavaScript.</div></noscript>
