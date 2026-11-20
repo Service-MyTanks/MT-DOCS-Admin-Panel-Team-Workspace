@@ -173,7 +173,7 @@ async function enterWorkspace() {
     updateAvatarImages();
     $("topbar-nickname").textContent = profile.nickname;
     showScreen("app");
-    if (!parseRoute()) location.replace("#/home");
+    if (location.hash !== "#/home") location.replace("#/home");
     else render();
     refreshPendingBadge();
   }
