@@ -279,4 +279,30 @@ dialog::backdrop { background: #090c11bd; backdrop-filter: blur(4px); }
 
 
 /* Administration training content */
-.training-explainer { margin: 0; padding: 18px 22px 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.8; white-space: pre-line; }
+.training-help { position: relative; margin-left: auto; flex: 0 0 auto; }
+.training-help-button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; transition: color .18s, border-color .18s, background .18s; }
+.training-help-button:hover, .training-help-button:focus-visible { color: var(--accent); border-color: var(--accent); background: var(--input); outline: none; }
+.training-help-button svg { width: 18px; height: 18px; }
+.training-help-popover { position: fixed; inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: min(620px, calc(100vw - 32px)); max-height: min(76vh, 720px); overflow: auto; margin: 0; padding: 24px 28px; border: 0; border-radius: 12px; background: var(--card); color: var(--text); box-shadow: 0 18px 70px #0008; font-size: 13px; line-height: 1.75; }
+.training-help-popover::backdrop { background: #090c1180; backdrop-filter: blur(2px); }
+.training-help-popover p { margin: 0 0 14px; }
+.training-help-popover ol { margin: 0 0 16px; padding-left: 24px; }
+.training-help-popover li { padding-left: 4px; margin: 3px 0; }
+.training-final-stage .card-heading { margin-bottom: 8px; }
+.training-subsections { display: grid; gap: 8px; padding: 0 22px 16px; }
+.training-subsection { border: 1px solid var(--border); border-radius: 10px; background: var(--input); overflow: hidden; }
+.training-subsection summary { display: flex; align-items: center; gap: 12px; padding: 13px 15px; cursor: pointer; list-style: none; }
+.training-subsection summary::-webkit-details-marker { display: none; }
+.training-subsection summary strong { flex: 1; font-size: 13px; font-weight: 600; }
+.training-subsection .section-icon { width: 30px; height: 30px; flex: 0 0 30px; }
+.training-subsection-chevron { width: 16px; height: 16px; color: var(--muted); transition: transform .18s; }
+.training-subsection[open] .training-subsection-chevron { transform: rotate(90deg); }
+.training-subsection-list { padding: 0 10px 10px; }
+.training-subsection-list .row-link { background: var(--card); border-radius: 8px; }
+.training-mandatory-note { margin: 0; padding: 0 22px 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+@media (max-width: 600px) {
+  .training-help-popover { padding: 20px; font-size: 12px; }
+  .training-subsections { padding-left: 14px; padding-right: 14px; }
+  .training-subsection summary { gap: 9px; padding: 12px; }
+  .training-subsection summary strong { font-size: 12px; }
+}
