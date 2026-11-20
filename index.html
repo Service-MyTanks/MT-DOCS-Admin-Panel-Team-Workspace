@@ -13,10 +13,10 @@
   <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
   <link rel="shortcut icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
-  <link rel="stylesheet" href="./styles.css?v=7">
+  <link rel="stylesheet" href="./styles.css?v=8">
   <script src="./vendor/supabase.js?v=2.119.1" defer></script>
   <script src="./config.js?v=2" defer></script>
-  <script src="./app.js?v=9" defer></script>
+  <script src="./app.js?v=10" defer></script>
 </head>
 <body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -131,8 +131,9 @@
         <div class="nav-group">
           <div class="nav-group-heading">
             <a class="nav-item" href="#/training" data-nav="training"><svg><use href="#i-book-open"/></svg>Учебный центр</a>
+            <button type="button" class="training-tree-toggle" id="training-toggle" aria-label="Открыть список курсов" aria-expanded="false" aria-controls="training-items"><svg><use href="#i-chevron"/></svg></button>
           </div>
-          <div class="nav-sub" id="training-items">
+          <div class="nav-sub" id="training-items" hidden>
             <a class="nav-item" href="#/training/gameplay" data-training-nav="gameplay"><svg><use href="#i-monitor"/></svg>Игровой процесс</a>
             <a class="nav-item" href="#/training/forum" data-training-nav="forum"><svg><use href="#i-doc"/></svg>Работа с форумом</a>
             <a class="nav-item" href="#/training/community" data-training-nav="community"><svg><use href="#i-user"/></svg>Работа с сообществом</a>
