@@ -199,6 +199,7 @@ async function refreshPendingBadge() {
 function parseRoute() {
   const path = location.hash.replace(/^#/, "");
   if (path === "/home") return { page: "home", crumbs: [["Главная"]] };
+  if (path === "/training") return { page: "training-index", crumbs: [["Обучение"]] };
   if (path === "/reports") return { page: "reports", crumbs: [["Отчёты"]] };
   if (path === "/reports/mine") return { page: "my-reports", crumbs: [["Отчёты", "#/reports"], ["Мои отчёты"]] };
   if (path === "/blocks") return { page: "blocks", crumbs: [["Мониторинг игры"], ["Блокировки"]] };
@@ -216,7 +217,7 @@ function parseRoute() {
 }
 
 function setChrome(route) {
-  const nav = { home: "home", reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account", training: "training" }[route.page];
+  const nav = { home: "home", reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account", training: "training", "training-index": "training" }[route.page];
   for (const link of document.querySelectorAll("[data-nav]")) {
     const active = link.dataset.nav === nav;
     link.classList.toggle("active", active);
@@ -232,7 +233,7 @@ function setChrome(route) {
     const node = last ? h("strong", { text: label }) : href ? h("a", { href, text: label }) : h("span", { class: "crumb", text: label });
     return index ? [h("span", { class: "crumb-sep", text: "/" }), node] : [node];
   }));
-  const titles = { home: "Главная", reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section };
+  const titles = { home: "Главная", reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section, "training-index": "Обучение" };
   document.title = `${titles[route.page]} · MT DOCS`;
   closeSidebar();
 }
@@ -272,9 +273,109 @@ async function render() {
   const current = () => id === state.renderId;
   setChrome(route);
   view.replaceChildren();
-  const renderers = { home: renderHome, reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount, training: renderTraining };
+  const renderers = { home: renderHome, reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount, training: renderTraining, "training-index": renderTrainingIndex };
   await renderers[route.page](view, route, current);
+  if (current() && route.page === "training") enhanceTrainingDeck(view, route);
   if (current()) view.focus({ preventScroll: true });
+}
+
+
+function renderTrainingIndex(view) {
+  const courses = [
+    ["gameplay", "Игровой процесс", "Дежурство, игровой чат, режим наблюдателя и мониторинг битв.", "i-monitor"],
+    ["forum", "Работа с форумом", "Права доступа, административные разделы и работа с обращениями.", "i-book-open"],
+    ["community", "Работа с сообществом", "Обучающие материалы по взаимодействию с сообществом.", "i-user"],
+    ["administration", "Административный аппарат", "Структура команды, обязанности, регламенты и нормативы.", "i-shield"]
+  ];
+  view.append(
+    pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", "Учебный центр", "Выберите курс. Материалы открываются в формате последовательной презентации."),
+    h("div", { class: "training-course-grid" }, ...courses.map(([key, title, description, iconName], index) =>
+      h("a", { class: "training-course-card", href: `#/training/${key}` },
+        h("span", { class: "training-course-number", text: String(index + 1).padStart(2, "0") }),
+        h("span", { class: "section-icon" }, icon(iconName)),
+        h("strong", { text: title }),
+        h("p", { text: description }),
+        h("span", { class: "training-course-open" }, "Открыть курс", icon("i-chevron"))
+      )
+    ))
+  );
+}
+
+function enhanceTrainingDeck(view, route) {
+  const heading = view.querySelector(".page-heading");
+  const cards = [...view.querySelectorAll(":scope > .card")];
+  if (!heading || !cards.length) return;
+
+  const deck = h("section", { class: "training-deck", "aria-label": `Курс: ${route.section}` });
+  const toolbar = h("div", { class: "training-deck-toolbar" },
+    h("a", { class: "training-back-link", href: "#/training" }, icon("i-chevron"), "Все курсы"),
+    h("span", { class: "training-deck-course", text: route.section })
+  );
+  const progress = h("div", { class: "training-progress", role: "group", "aria-label": "Прогресс курса" },
+    h("div", { class: "training-progress-track" }, h("span", { class: "training-progress-fill" })),
+    h("div", { class: "training-progress-meta" },
+      h("span", { class: "training-progress-label", text: "Этап 1" }),
+      h("span", { class: "training-progress-count", text: `1 / ${cards.length}` })
+    )
+  );
+  const viewport = h("div", { class: "training-slide-viewport", tabindex: "0", "aria-label": "Слайды курса. Используйте стрелки влево и вправо для навигации." });
+  const slides = cards.map((card, index) => {
+    const slide = h("div", { class: `training-slide${index === 0 ? " is-active" : ""}`, role: "group", "aria-roledescription": "слайд", "aria-label": `${index + 1} из ${cards.length}` }, card);
+    slide.hidden = index !== 0;
+    viewport.append(slide);
+    return slide;
+  });
+  const previous = h("button", { type: "button", class: "button button-secondary training-prev", disabled: true }, icon("i-chevron"), "Назад");
+  const next = h("button", { type: "button", class: "button button-primary training-next" }, "Далее", icon("i-chevron"));
+  const controls = h("div", { class: "training-deck-controls" },
+    h("span", { class: "training-deck-hint", text: "Листайте карточки или используйте кнопки навигации" }),
+    h("div", { class: "training-deck-actions" }, previous, next)
+  );
+  let active = 0;
+  const update = (direction) => {
+    const target = Math.max(0, Math.min(slides.length - 1, active + direction));
+    if (target === active) return;
+    const old = active;
+    active = target;
+    slides[old].hidden = true;
+    slides[old].classList.remove("is-active", "slide-enter-next", "slide-enter-prev");
+    slides[active].hidden = false;
+    slides[active].classList.add("is-active", direction > 0 ? "slide-enter-next" : "slide-enter-prev");
+    progress.querySelector(".training-progress-fill").style.width = `${((active + 1) / slides.length) * 100}%`;
+    progress.querySelector(".training-progress-label").textContent = active === slides.length - 1 ? "Последний этап" : `Этап ${active + 1}`;
+    progress.querySelector(".training-progress-count").textContent = `${active + 1} / ${slides.length}`;
+    previous.disabled = active === 0;
+    next.replaceChildren(...(active === slides.length - 1
+      ? ["Завершить курс", icon("i-check")]
+      : ["Далее", icon("i-chevron")]));
+    next.dataset.finish = String(active === slides.length - 1);
+    viewport.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+  previous.addEventListener("click", () => update(-1));
+  next.addEventListener("click", () => {
+    if (active === slides.length - 1) location.hash = "#/training";
+    else update(1);
+  });
+  viewport.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight") { event.preventDefault(); update(1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); update(-1); }
+  });
+  let pointerStart = null;
+  viewport.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    pointerStart = { x: event.clientX, y: event.clientY };
+  });
+  viewport.addEventListener("pointerup", (event) => {
+    if (!pointerStart) return;
+    const dx = event.clientX - pointerStart.x;
+    const dy = event.clientY - pointerStart.y;
+    pointerStart = null;
+    if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.25) update(dx < 0 ? 1 : -1);
+  });
+  viewport.addEventListener("pointercancel", () => { pointerStart = null; });
+
+  deck.append(toolbar, heading, progress, viewport, controls);
+  view.replaceChildren(deck);
 }
 
 async function renderTraining(view, route) {
