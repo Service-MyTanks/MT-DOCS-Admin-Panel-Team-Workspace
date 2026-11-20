@@ -297,6 +297,7 @@ function setTrainingViewMode(mode) {
   document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
     input.checked = input.value === safeMode;
   });
+  closeTrainingSettings();
   const route = parseRoute();
   if (route?.page === "training") render();
 }
