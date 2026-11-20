@@ -721,3 +721,36 @@ html[data-theme="new-year"] .card-heading { padding-right: 62px; }
 @media (max-width: 640px) {
   html[data-theme="new-year"] .card-heading { padding-right: 48px; }
 }
+
+
+/* Collapsible course list in the training center */
+.training-tree-toggle {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #858d99;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.training-tree-toggle:hover,
+.training-tree-toggle[aria-expanded="true"] {
+  border-color: var(--border);
+  background: var(--input);
+  color: var(--text);
+}
+.training-tree-toggle svg {
+  width: 16px;
+  height: 16px;
+  transform: rotate(90deg);
+  transition: transform .18s ease;
+}
+.training-tree-toggle[aria-expanded="true"] svg { transform: rotate(-90deg); }
+.nav-sub[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .training-tree-toggle svg { transition: none; }
+}
