@@ -204,11 +204,18 @@ function parseRoute() {
   const match = path.match(/^\/blocks\/(ban|kick|mute|warning)$/);
   if (match) return { page: "sanctions", kind: match[1], crumbs: [["Мониторинг игры"], ["Блокировки", "#/blocks"], [KINDS[match[1]].title]] };
   if (path === "/account") return { page: "account", crumbs: [["Личный кабинет"]] };
+  const training = {
+    "/training/gameplay": "Игровой процесс",
+    "/training/forum": "Работа с форумом",
+    "/training/community": "Работа с сообществом",
+    "/training/administration": "Административный аппарат"
+  }[path];
+  if (training) return { page: "training", section: training, crumbs: [["Обучение"], [training]] };
   return null;
 }
 
 function setChrome(route) {
-  const nav = { reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account" }[route.page];
+  const nav = { reports: "reports", "my-reports": "reports", blocks: "blocks", sanctions: "blocks", account: "account", training: "training" }[route.page];
   for (const link of document.querySelectorAll("[data-nav]")) {
     const active = link.dataset.nav === nav;
     link.classList.toggle("active", active);
@@ -219,7 +226,7 @@ function setChrome(route) {
     const node = last ? h("strong", { text: label }) : href ? h("a", { href, text: label }) : h("span", { class: "crumb", text: label });
     return index ? [h("span", { class: "crumb-sep", text: "/" }), node] : [node];
   }));
-  const titles = { reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет" };
+  const titles = { reports: "Отчётность", "my-reports": "Мои отчёты", blocks: "Блокировка", sanctions: KINDS[route.kind]?.title, account: "Личный кабинет", training: route.section };
   document.title = `${titles[route.page]} · MT DOCS`;
   closeSidebar();
 }
@@ -259,9 +266,18 @@ async function render() {
   const current = () => id === state.renderId;
   setChrome(route);
   view.replaceChildren();
-  const renderers = { reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount };
+  const renderers = { reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount, training: renderTraining };
   await renderers[route.page](view, route, current);
   if (current()) view.focus({ preventScroll: true });
+}
+
+async function renderTraining(view, route) {
+  view.append(
+    pageHeading("БАЗА ЗНАНИЙ", route.section, "Обучающие материалы для команды MyTanks."),
+    h("section", { class: "card" },
+      emptyBlock("i-doc", "Материалы скоро появятся", "Этот раздел уже подготовлен. Содержимое будет добавлено позднее.")
+    )
+  );
 }
 
 async function countRows(table, filters = {}) {
@@ -644,12 +660,14 @@ function bindApp() {
   $("menu-button").addEventListener("click", () => document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar());
   $("sidebar-backdrop").addEventListener("click", closeSidebar);
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("sidebar-open")) closeSidebar(); });
-  $("monitoring-toggle").addEventListener("click", () => {
-    const toggle = $("monitoring-toggle");
-    const expanded = toggle.getAttribute("aria-expanded") !== "true";
-    toggle.setAttribute("aria-expanded", String(expanded));
-    $("monitoring-items").hidden = !expanded;
-  });
+  for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"], ["training-toggle", "training-items"]]) {
+    $(toggleId).addEventListener("click", () => {
+      const toggle = $(toggleId);
+      const expanded = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      $(itemsId).hidden = !expanded;
+    });
+  }
   $("sanction-form").addEventListener("submit", submitSanction);
   $("settings-nickname-form").addEventListener("submit", changeNickname);
   $("settings-email-form").addEventListener("submit", requestEmailChange);
