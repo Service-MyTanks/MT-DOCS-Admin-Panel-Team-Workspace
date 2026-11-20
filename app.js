@@ -314,6 +314,13 @@ function setChrome(route) {
     link.classList.toggle("active", active);
     if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
+  const trainingToggle = $("training-toggle");
+  const trainingItems = $("training-items");
+  if (trainingToggle && trainingItems && route.page === "training") {
+    trainingToggle.setAttribute("aria-expanded", "true");
+    trainingToggle.setAttribute("aria-label", "Свернуть список курсов");
+    trainingItems.hidden = false;
+  }
   for (const link of document.querySelectorAll("[data-training-nav]")) {
     const active = ["training", "training-index"].includes(route.page) && link.dataset.trainingNav === route.sectionKey;
     link.classList.toggle("active", active);
@@ -1161,12 +1168,13 @@ function bindApp() {
   $("menu-button").addEventListener("click", () => document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar());
   $("sidebar-backdrop").addEventListener("click", closeSidebar);
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("sidebar-open")) closeSidebar(); });
-  for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"]]) {
+  for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"], ["training-toggle", "training-items"]]) {
     $(toggleId).addEventListener("click", () => {
       const toggle = $(toggleId);
       const expanded = toggle.getAttribute("aria-expanded") !== "true";
       toggle.setAttribute("aria-expanded", String(expanded));
       $(itemsId).hidden = !expanded;
+      if (toggleId === "training-toggle") toggle.setAttribute("aria-label", expanded ? "Свернуть список курсов" : "Открыть список курсов");
     });
   }
   $("sanction-form").addEventListener("submit", submitSanction);
