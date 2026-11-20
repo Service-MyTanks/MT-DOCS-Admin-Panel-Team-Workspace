@@ -22,7 +22,7 @@ const POSITIONS = Object.freeze([
   "Заместитель Специального Администратора", "Специальный Администратор",
 ]);
 
-const state = { client: null, session: null, profile: null, renderId: 0, sanctionKind: "ban", recovery: false, theme: "mt-standard" };
+const state = { client: null, session: null, profile: null, renderId: 0, sanctionKind: "ban", recovery: false, theme: "mt-standard", globalTheme: "mt-standard", globalThemeChannel: null };
 
 const THEME_OPTIONS = [
   { id: "mt-standard", name: "MT Standard", description: "Исходное оформление MyWorkspace", swatch: "theme-swatch-standard" },
@@ -32,15 +32,14 @@ const THEME_OPTIONS = [
   { id: "cherry", name: "Cherry", description: "Бордовые и красные акценты", swatch: "theme-swatch-cherry" },
   { id: "snow", name: "Snow", description: "Светлая минималистичная схема", swatch: "theme-swatch-snow" },
   { id: "violet", name: "Violet", description: "Фиолетовые акценты на тёмной основе", swatch: "theme-swatch-violet" },
-  { id: "new-year", name: "Новогодняя тема", description: "Праздничная палитра для технической поддержки", swatch: "theme-swatch-new-year", supportOnly: true },
 ];
 
 function isSupportAccount() {
   const user = state.session?.user;
   return String(user?.email || "").trim().toLowerCase() === "supportmytanks@gmail.com"
     && Boolean(user?.email_confirmed_at)
-    && state.profile?.status !== "pending"
-    && state.profile?.status !== "rejected";
+    && String(state.profile?.email || "").trim().toLowerCase() === "supportmytanks@gmail.com"
+    && state.profile?.status === "approved";
 }
 
 function themeStorageKey() {
@@ -48,10 +47,10 @@ function themeStorageKey() {
 }
 
 function applyTheme(theme, persist = false) {
-  const allowed = THEME_OPTIONS.some((item) => item.id === theme && (!item.supportOnly || isSupportAccount()));
+  const allowed = THEME_OPTIONS.some((item) => item.id === theme);
   const safeTheme = allowed ? theme : "mt-standard";
   state.theme = safeTheme;
-  document.documentElement.dataset.theme = safeTheme;
+  document.documentElement.dataset.theme = state.globalTheme === "new-year" ? "new-year" : safeTheme;
   if (persist) {
     try { localStorage.setItem(themeStorageKey(), safeTheme); } catch {}
   }
@@ -65,7 +64,53 @@ function applyTheme(theme, persist = false) {
 function restoreTheme() {
   let saved = "mt-standard";
   try { saved = localStorage.getItem(themeStorageKey()) || "mt-standard"; } catch {}
-  applyTheme(saved, saved === "new-year" && !isSupportAccount());
+  applyTheme(saved);
+}
+
+async function loadGlobalTheme() {
+  const { data, error } = await state.client.from("workspace_settings")
+    .select("global_theme").eq("setting_key", "appearance").maybeSingle();
+  if (error) {
+    state.globalTheme = "mt-standard";
+    applyTheme(state.theme);
+    return;
+  }
+  state.globalTheme = data?.global_theme === "new-year" ? "new-year" : "mt-standard";
+  applyTheme(state.theme);
+  subscribeGlobalTheme();
+}
+
+function subscribeGlobalTheme() {
+  if (state.globalThemeChannel) state.client.removeChannel(state.globalThemeChannel);
+  state.globalThemeChannel = state.client.channel("workspace-global-theme")
+    .on("postgres_changes", { event: "*", schema: "public", table: "workspace_settings", filter: "setting_key=eq.appearance" }, (payload) => {
+      const nextTheme = payload.new?.global_theme === "new-year" ? "new-year" : "mt-standard";
+      state.globalTheme = nextTheme;
+      applyTheme(state.theme);
+      if (parseRoute()?.page === "account" && !$("app-view").hidden) render();
+    })
+    .subscribe();
+}
+
+async function setGlobalHolidayTheme(enabled) {
+  if (!isSupportAccount()) {
+    showToast("Управление новогодней темой доступно только закреплённому аккаунту техподдержки.");
+    return;
+  }
+  const toggle = $("global-holiday-toggle");
+  if (toggle) toggle.disabled = true;
+  const { error } = await state.client.rpc("set_workspace_global_theme", { new_theme: enabled ? "new-year" : "mt-standard" });
+  if (toggle) toggle.disabled = false;
+  if (error) {
+    if (toggle) toggle.checked = state.globalTheme === "new-year";
+    showToast(/function .* does not exist|workspace_settings/i.test(error.message || "")
+      ? "Сначала необходимо применить миграцию глобальной темы в Supabase."
+      : friendlyError(error));
+    return;
+  }
+  state.globalTheme = enabled ? "new-year" : "mt-standard";
+  applyTheme(state.theme);
+  showToast(enabled ? "Новогодняя тема включена для всего MyWorkspace." : "Глобальная новогодняя тема отключена. Личные темы восстановлены.");
 }
 
 function h(tag, props, ...children) {
@@ -213,6 +258,7 @@ async function enterWorkspace() {
     showGate({ title: "Доступ закрыт", text: "Руководитель отклонил заявку или отозвал доступ. Если это ошибка, свяжитесь с руководством проекта.", iconName: "i-ban" });
   } else {
     restoreTheme();
+    await loadGlobalTheme();
     $("sidebar-nickname").textContent = profile.nickname;
     $("sidebar-position").textContent = profile.position;
     updateAvatarImages();
@@ -857,8 +903,7 @@ async function deleteSanction(item) {
 }
 
 function renderAppearanceSettings() {
-  const availableThemes = THEME_OPTIONS.filter((item) => !item.supportOnly || isSupportAccount());
-  const themeButtons = availableThemes.map((item) => h("button", {
+  const themeButtons = THEME_OPTIONS.map((item) => h("button", {
     type: "button",
     class: `theme-choice ${item.swatch}`,
     "data-theme-choice": item.id,
@@ -870,22 +915,34 @@ function renderAppearanceSettings() {
     h("span", { class: "theme-choice-check", "aria-hidden": "true" }, icon("i-check"))
   ));
   const presentation = h("input", { type: "checkbox", id: "training-presentation-toggle", class: "ios-toggle-input", checked: getTrainingViewMode() === "presentation", onchange: (event) => setTrainingViewMode(event.target.checked ? "presentation" : "standard") });
+  const sections = [
+    h("section", { class: "appearance-section" },
+      h("div", { class: "appearance-section-heading" }, h("strong", { text: "Цветовая схема" }), h("small", { class: "muted", text: state.globalTheme === "new-year" ? "Сейчас для всех пользователей принудительно включена Новогодняя тема. Ваш выбор сохранится и восстановится после её отключения." : "Применяется ко всему MyWorkspace и сохраняется для вашего аккаунта." })),
+      h("div", { class: "theme-choice-grid" }, themeButtons)
+    )
+  ];
+  if (isSupportAccount()) {
+    const holiday = h("input", { type: "checkbox", id: "global-holiday-toggle", class: "ios-toggle-input", checked: state.globalTheme === "new-year", onchange: (event) => setGlobalHolidayTheme(event.target.checked) });
+    sections.push(h("section", { class: "appearance-section global-theme-control" },
+      h("div", { class: "appearance-section-heading" }, h("strong", { text: "Глобальное оформление" }), h("small", { class: "muted", text: "Управление праздничной темой всего рабочего пространства. Изменение сразу применяется ко всем пользователям." })),
+      h("label", { class: "ios-setting-row", for: "global-holiday-toggle" },
+        h("span", { class: "ios-setting-copy" }, h("strong", { text: "Новогодняя тема для всех" }), h("small", { text: "Включает праздничное оформление всем сотрудникам, не изменяя их личные настройки." })),
+        holiday,
+        h("span", { class: "ios-toggle-track", "aria-hidden": "true" }, h("span", { class: "ios-toggle-thumb" }))
+      )
+    ));
+  }
+  sections.push(h("section", { class: "appearance-section training-appearance-section" },
+    h("div", { class: "appearance-section-heading" }, h("strong", { text: "Учебный центр" }), h("small", { class: "muted", text: "Выберите способ отображения обучающих материалов." })),
+    h("label", { class: "ios-setting-row", for: "training-presentation-toggle" },
+      h("span", { class: "ios-setting-copy" }, h("strong", { text: "Режим презентации" }), h("small", { text: "Материалы открываются карточками с перелистыванием." })),
+      presentation,
+      h("span", { class: "ios-toggle-track", "aria-hidden": "true" }, h("span", { class: "ios-toggle-thumb" }))
+    )
+  ));
   return h("section", { class: "card appearance-card" },
     h("div", { class: "card-heading" }, h("div", {}, h("h2", { text: "Внешний вид" }), h("p", { class: "muted", text: "Персональные настройки оформления рабочего пространства." }))),
-    h("div", { class: "appearance-body" },
-      h("section", { class: "appearance-section" },
-        h("div", { class: "appearance-section-heading" }, h("strong", { text: "Цветовая схема" }), h("small", { class: "muted", text: "Применяется ко всему MyWorkspace и сохраняется для вашего аккаунта." })),
-        h("div", { class: "theme-choice-grid" }, themeButtons)
-      ),
-      h("section", { class: "appearance-section training-appearance-section" },
-        h("div", { class: "appearance-section-heading" }, h("strong", { text: "Учебный центр" }), h("small", { class: "muted", text: "Выберите способ отображения обучающих материалов." })),
-        h("label", { class: "ios-setting-row", for: "training-presentation-toggle" },
-          h("span", { class: "ios-setting-copy" }, h("strong", { text: "Режим презентации" }), h("small", { text: "Материалы открываются карточками с перелистыванием." })),
-          presentation,
-          h("span", { class: "ios-toggle-track", "aria-hidden": "true" }, h("span", { class: "ios-toggle-thumb" }))
-        )
-      )
-    )
+    h("div", { class: "appearance-body" }, sections)
   );
 }
 
@@ -1152,7 +1209,13 @@ async function start() {
   state.client.auth.onAuthStateChange((event, session) => {
     state.session = session;
     if (event === "PASSWORD_RECOVERY") { state.recovery = true; setTimeout(() => showScreen("recovery"), 0); }
-    if (event === "SIGNED_OUT") { state.profile = null; applyTheme("mt-standard"); setTimeout(() => showScreen("login"), 0); }
+    if (event === "SIGNED_OUT") {
+      state.profile = null;
+      state.globalTheme = "mt-standard";
+      if (state.globalThemeChannel) { state.client.removeChannel(state.globalThemeChannel); state.globalThemeChannel = null; }
+      applyTheme("mt-standard");
+      setTimeout(() => showScreen("login"), 0);
+    }
   });
   const { data, error } = await state.client.auth.getSession();
   if (/access_token|refresh_token|type=/.test(location.hash)) history.replaceState(null, "", `${appUrl()}#/home`);
