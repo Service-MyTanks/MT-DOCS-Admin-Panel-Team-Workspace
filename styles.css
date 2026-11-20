@@ -393,3 +393,16 @@ dialog::backdrop { background: #090c11bd; backdrop-filter: blur(4px); }
   .training-content-popover { padding: 20px; font-size: 12px; }
   .training-report-body { padding: 18px; font-size: 12px; }
 }
+
+
+/* Home page quick actions */
+.home-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.home-action { display: flex; min-width: 0; min-height: 88px; align-items: center; gap: 14px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text); text-decoration: none; transition: border-color .18s, background .18s, transform .18s; }
+.home-action:hover, .home-action:focus-visible { border-color: var(--accent); background: var(--input); transform: translateY(-1px); outline: none; }
+.home-action-icon { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border: 1px solid var(--border); border-radius: 10px; background: var(--input); color: var(--accent); }
+.home-action-icon svg { width: 19px; height: 19px; }
+.home-action-copy { display: grid; min-width: 0; flex: 1; gap: 5px; }
+.home-action-copy strong { font-size: 13px; line-height: 1.45; font-weight: 600; overflow-wrap: anywhere; }
+.home-action-copy small { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.home-action-arrow { width: 16px; height: 16px; flex: 0 0 16px; color: var(--faint); }
+@media (max-width: 640px) { .home-actions { grid-template-columns: minmax(0, 1fr); gap: 9px; } .home-action { min-height: 76px; padding: 14px; gap: 12px; } }
