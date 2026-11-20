@@ -275,10 +275,53 @@ async function render() {
   view.replaceChildren();
   const renderers = { home: renderHome, reports: renderReports, "my-reports": renderMyReports, blocks: renderBlocks, sanctions: renderSanctions, account: renderAccount, training: renderTraining, "training-index": renderTrainingIndex };
   await renderers[route.page](view, route, current);
-  if (current() && route.page === "training") enhanceTrainingDeck(view, route);
+  if (current() && route.page === "training" && getTrainingViewMode() === "presentation") enhanceTrainingDeck(view, route);
   if (current()) view.focus({ preventScroll: true });
 }
 
+
+
+const TRAINING_VIEW_MODE_KEY = "myworkspace.trainingViewMode";
+
+function getTrainingViewMode() {
+  try {
+    return localStorage.getItem(TRAINING_VIEW_MODE_KEY) === "presentation" ? "presentation" : "standard";
+  } catch {
+    return "standard";
+  }
+}
+
+function setTrainingViewMode(mode) {
+  const safeMode = mode === "presentation" ? "presentation" : "standard";
+  try { localStorage.setItem(TRAINING_VIEW_MODE_KEY, safeMode); } catch {}
+  document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
+    input.checked = input.value === safeMode;
+  });
+  const route = parseRoute();
+  if (route?.page === "training") render();
+}
+
+function closeTrainingSettings() {
+  const popover = $("training-settings-popover");
+  const trigger = $("training-settings-trigger");
+  if (!popover || !trigger) return;
+  popover.hidden = true;
+  trigger.setAttribute("aria-expanded", "false");
+}
+
+function toggleTrainingSettings() {
+  const popover = $("training-settings-popover");
+  const trigger = $("training-settings-trigger");
+  const opening = popover.hidden;
+  popover.hidden = !opening;
+  trigger.setAttribute("aria-expanded", String(opening));
+  if (opening) {
+    const mode = getTrainingViewMode();
+    document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
+      input.checked = input.value === mode;
+    });
+  }
+}
 
 function renderTrainingIndex(view) {
   const courses = [
@@ -1004,7 +1047,11 @@ function bindApp() {
   $("sidebar-logout").addEventListener("click", logout);
   $("menu-button").addEventListener("click", () => document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar());
   $("sidebar-backdrop").addEventListener("click", closeSidebar);
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("sidebar-open")) closeSidebar(); });
+  $("training-settings-trigger").addEventListener("click", (event) => { event.stopPropagation(); toggleTrainingSettings(); });
+  $("training-settings-popover").addEventListener("click", (event) => event.stopPropagation());
+  document.addEventListener("click", (event) => { if (!event.target.closest("#training-settings-popover, #training-settings-trigger")) closeTrainingSettings(); });
+  document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => input.addEventListener("change", () => setTrainingViewMode(input.value)));
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeTrainingSettings(); if (document.body.classList.contains("sidebar-open")) closeSidebar(); } });
   for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"], ["training-toggle", "training-items"]]) {
     $(toggleId).addEventListener("click", () => {
       const toggle = $(toggleId);
