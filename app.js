@@ -22,7 +22,51 @@ const POSITIONS = Object.freeze([
   "Заместитель Специального Администратора", "Специальный Администратор",
 ]);
 
-const state = { client: null, session: null, profile: null, renderId: 0, sanctionKind: "ban", recovery: false };
+const state = { client: null, session: null, profile: null, renderId: 0, sanctionKind: "ban", recovery: false, theme: "mt-standard" };
+
+const THEME_OPTIONS = [
+  { id: "mt-standard", name: "MT Standard", description: "Исходное оформление MyWorkspace", swatch: "theme-swatch-standard" },
+  { id: "graphite", name: "Graphite", description: "Графитовая, с холодным акцентом", swatch: "theme-swatch-graphite" },
+  { id: "midnight", name: "Midnight", description: "Глубокий синий и бирюза", swatch: "theme-swatch-midnight" },
+  { id: "emerald", name: "Emerald", description: "Тёмная зелёная палитра", swatch: "theme-swatch-emerald" },
+  { id: "cherry", name: "Cherry", description: "Бордовые и красные акценты", swatch: "theme-swatch-cherry" },
+  { id: "snow", name: "Snow", description: "Светлая минималистичная схема", swatch: "theme-swatch-snow" },
+  { id: "violet", name: "Violet", description: "Фиолетовые акценты на тёмной основе", swatch: "theme-swatch-violet" },
+  { id: "new-year", name: "Новогодняя тема", description: "Праздничная палитра для технической поддержки", swatch: "theme-swatch-new-year", supportOnly: true },
+];
+
+function isSupportAccount() {
+  const user = state.session?.user;
+  return String(user?.email || "").trim().toLowerCase() === "supportmytanks@gmail.com"
+    && Boolean(user?.email_confirmed_at)
+    && state.profile?.status !== "pending"
+    && state.profile?.status !== "rejected";
+}
+
+function themeStorageKey() {
+  return state.session?.user?.id ? `myworkspace.theme.${state.session.user.id}` : "myworkspace.theme";
+}
+
+function applyTheme(theme, persist = false) {
+  const allowed = THEME_OPTIONS.some((item) => item.id === theme && (!item.supportOnly || isSupportAccount()));
+  const safeTheme = allowed ? theme : "mt-standard";
+  state.theme = safeTheme;
+  document.documentElement.dataset.theme = safeTheme;
+  if (persist) {
+    try { localStorage.setItem(themeStorageKey(), safeTheme); } catch {}
+  }
+  document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+    const selected = button.dataset.themeChoice === safeTheme;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function restoreTheme() {
+  let saved = "mt-standard";
+  try { saved = localStorage.getItem(themeStorageKey()) || "mt-standard"; } catch {}
+  applyTheme(saved, saved === "new-year" && !isSupportAccount());
+}
 
 function h(tag, props, ...children) {
   const el = document.createElement(tag);
@@ -168,6 +212,7 @@ async function enterWorkspace() {
   } else if (profile.status === "rejected") {
     showGate({ title: "Доступ закрыт", text: "Руководитель отклонил заявку или отозвал доступ. Если это ошибка, свяжитесь с руководством проекта.", iconName: "i-ban" });
   } else {
+    restoreTheme();
     $("sidebar-nickname").textContent = profile.nickname;
     $("sidebar-position").textContent = profile.position;
     updateAvatarImages();
@@ -294,32 +339,10 @@ function getTrainingViewMode() {
 function setTrainingViewMode(mode) {
   const safeMode = mode === "presentation" ? "presentation" : "standard";
   try { localStorage.setItem(TRAINING_VIEW_MODE_KEY, safeMode); } catch {}
-  document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
-    input.checked = input.value === safeMode;
-  });
-  closeTrainingSettings();
+  const toggle = $("training-presentation-toggle");
+  if (toggle) toggle.checked = safeMode === "presentation";
   const route = parseRoute();
   if (route?.page === "training") render();
-}
-
-function closeTrainingSettings() {
-  const dialog = $("training-settings-dialog");
-  const trigger = $("training-settings-trigger");
-  if (dialog?.open) dialog.close();
-  if (trigger) trigger.setAttribute("aria-expanded", "false");
-}
-
-function toggleTrainingSettings() {
-  const dialog = $("training-settings-dialog");
-  const trigger = $("training-settings-trigger");
-  if (!dialog || !trigger) return;
-  if (dialog.open) { dialog.close(); return; }
-  const mode = getTrainingViewMode();
-  dialog.querySelectorAll('input[name="training-view-mode"]').forEach((input) => {
-    input.checked = input.value === mode;
-  });
-  dialog.showModal();
-  trigger.setAttribute("aria-expanded", "true");
 }
 
 function renderTrainingIndex(view) {
@@ -833,6 +856,39 @@ async function deleteSanction(item) {
   render();
 }
 
+function renderAppearanceSettings() {
+  const availableThemes = THEME_OPTIONS.filter((item) => !item.supportOnly || isSupportAccount());
+  const themeButtons = availableThemes.map((item) => h("button", {
+    type: "button",
+    class: `theme-choice ${item.swatch}`,
+    "data-theme-choice": item.id,
+    "aria-pressed": String(state.theme === item.id),
+    onclick: () => { applyTheme(item.id, true); showToast(`Тема «${item.name}» сохранена.`); },
+  },
+    h("span", { class: "theme-choice-preview", "aria-hidden": "true" }),
+    h("span", { class: "theme-choice-copy" }, h("strong", { text: item.name }), h("small", { text: item.description })),
+    h("span", { class: "theme-choice-check", "aria-hidden": "true" }, icon("i-check"))
+  ));
+  const presentation = h("input", { type: "checkbox", id: "training-presentation-toggle", class: "ios-toggle-input", checked: getTrainingViewMode() === "presentation", onchange: (event) => setTrainingViewMode(event.target.checked ? "presentation" : "standard") });
+  return h("section", { class: "card appearance-card" },
+    h("div", { class: "card-heading" }, h("div", {}, h("h2", { text: "Внешний вид" }), h("p", { class: "muted", text: "Персональные настройки оформления рабочего пространства." }))),
+    h("div", { class: "appearance-body" },
+      h("section", { class: "appearance-section" },
+        h("div", { class: "appearance-section-heading" }, h("strong", { text: "Цветовая схема" }), h("small", { class: "muted", text: "Применяется ко всему MyWorkspace и сохраняется для вашего аккаунта." })),
+        h("div", { class: "theme-choice-grid" }, themeButtons)
+      ),
+      h("section", { class: "appearance-section training-appearance-section" },
+        h("div", { class: "appearance-section-heading" }, h("strong", { text: "Учебный центр" }), h("small", { class: "muted", text: "Выберите способ отображения обучающих материалов." })),
+        h("label", { class: "ios-setting-row", for: "training-presentation-toggle" },
+          h("span", { class: "ios-setting-copy" }, h("strong", { text: "Режим презентации" }), h("small", { text: "Материалы открываются карточками с перелистыванием." })),
+          presentation,
+          h("span", { class: "ios-toggle-track", "aria-hidden": "true" }, h("span", { class: "ios-toggle-thumb" }))
+        )
+      )
+    )
+  );
+}
+
 async function renderAccount(view, route, current) {
   const profile = state.profile;
   const avatar = h("img", { class: "profile-avatar", src: avatarPublicUrl(profile.avatar_path), alt: "Аватар " + profile.nickname, width: 64, height: 64 });
@@ -854,6 +910,7 @@ async function renderAccount(view, route, current) {
     h("section", { class: "card" }, h("div", { class: "profile-head" }, avatar, h("div", { class: "profile-identity" }, h("h2", { text: profile.nickname }), h("p", { class: "muted", text: profile.position }), avatarActions), h("span", { class: "pill pill-success", text: profile.is_admin ? "Руководитель" : "Доступ открыт" })),
       h("div", { class: "info-grid" }, info("Почта", state.session.user.email || profile.email), info("Должность", profile.position), info("Аккаунт создан", formatDateTime(profile.created_at)), info("Одобрен", profile.reviewed_at ? formatDateTime(profile.reviewed_at) : "—")),
       h("p", { class: "card-note", text: "Никнейм, почту и пароль можно изменить в настройках аккаунта. Должность и права доступа изменяются только руководителем." })));
+  view.append(renderAppearanceSettings());
   if (profile.is_admin) await renderAdmin(view, current);
 }
 
@@ -1046,10 +1103,7 @@ function bindApp() {
   $("sidebar-logout").addEventListener("click", logout);
   $("menu-button").addEventListener("click", () => document.body.classList.contains("sidebar-open") ? closeSidebar() : openSidebar());
   $("sidebar-backdrop").addEventListener("click", closeSidebar);
-  $("training-settings-trigger").addEventListener("click", toggleTrainingSettings);
-  $("training-settings-dialog").addEventListener("close", () => $("training-settings-trigger").setAttribute("aria-expanded", "false"));
-  document.querySelectorAll('input[name="training-view-mode"]').forEach((input) => input.addEventListener("change", () => setTrainingViewMode(input.value)));
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeTrainingSettings(); if (document.body.classList.contains("sidebar-open")) closeSidebar(); } });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.body.classList.contains("sidebar-open")) closeSidebar(); });
   for (const [toggleId, itemsId] of [["monitoring-toggle", "monitoring-items"]]) {
     $(toggleId).addEventListener("click", () => {
       const toggle = $(toggleId);
@@ -1098,7 +1152,7 @@ async function start() {
   state.client.auth.onAuthStateChange((event, session) => {
     state.session = session;
     if (event === "PASSWORD_RECOVERY") { state.recovery = true; setTimeout(() => showScreen("recovery"), 0); }
-    if (event === "SIGNED_OUT") { state.profile = null; setTimeout(() => showScreen("login"), 0); }
+    if (event === "SIGNED_OUT") { state.profile = null; applyTheme("mt-standard"); setTimeout(() => showScreen("login"), 0); }
   });
   const { data, error } = await state.client.auth.getSession();
   if (/access_token|refresh_token|type=/.test(location.hash)) history.replaceState(null, "", `${appUrl()}#/home`);
