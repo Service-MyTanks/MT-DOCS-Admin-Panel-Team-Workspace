@@ -723,35 +723,50 @@ html[data-theme="new-year"] .card-heading { padding-right: 62px; }
 }
 
 
-/* Collapsible course list in the training center */
+/* Unified sidebar disclosure chevrons */
+.nav-toggle .chevron,
+.training-tree-toggle svg {
+  transform: rotate(0deg);
+  transition: transform .18s ease;
+}
+.nav-toggle[aria-expanded="true"] .chevron,
+.training-tree-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+/* The course-list control remains accessible but visually belongs to its nav row. */
 .training-tree-toggle {
   display: grid;
-  flex: 0 0 34px;
-  width: 34px;
+  flex: 0 0 28px;
+  width: 28px;
   height: 36px;
+  margin-right: 5px;
+  padding: 0;
   place-items: center;
-  border: 1px solid transparent;
-  border-radius: 7px;
+  border: 0;
+  border-radius: 0;
   background: transparent;
-  color: #858d99;
+  color: #9da4af;
   cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
+  transition: color .15s;
 }
 .training-tree-toggle:hover,
 .training-tree-toggle[aria-expanded="true"] {
-  border-color: var(--border);
-  background: var(--input);
+  background: transparent;
   color: var(--text);
 }
 .training-tree-toggle svg {
-  width: 16px;
-  height: 16px;
-  transform: rotate(90deg);
-  transition: transform .18s ease;
+  width: 14px;
+  height: 14px;
 }
-.training-tree-toggle[aria-expanded="true"] svg { transform: rotate(-90deg); }
+.training-tree-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+  border-radius: 5px;
+}
 .nav-sub[hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
+  .nav-toggle .chevron,
   .training-tree-toggle svg { transition: none; }
 }
 
