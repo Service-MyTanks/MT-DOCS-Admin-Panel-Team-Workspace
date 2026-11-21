@@ -401,8 +401,8 @@ function setTrainingViewMode(mode) {
 function renderTrainingIndex(view) {
   const courses = [
     ["gameplay", "Игровой процесс", "Дежурство, игровой чат, режим наблюдателя и мониторинг битв.", "i-monitor"],
-    ["forum", "Работа с форумом", "Права доступа, административные разделы и работа с обращениями.", "i-book-open"],
-    ["community", "Работа с сообществом", "Обучающие материалы по взаимодействию с сообществом.", "i-user"],
+    ["forum", "Работа с форумом", "Права доступа, административные разделы и работа с обращениями.", "i-messages"],
+    ["community", "Работа с сообществом", "Обучающие материалы по взаимодействию с сообществом.", "i-users"],
     ["administration", "Административный аппарат", "Структура команды, обязанности, регламенты и нормативы.", "i-shield"]
   ];
   view.append(
@@ -513,7 +513,7 @@ async function renderTraining(view, route) {
 
     const accessCard = h("section", { class: "card" },
       h("div", { class: "card-heading" },
-        h("span", { class: "section-icon" }, icon("i-shield")),
+        h("span", { class: "section-icon" }, icon("i-lock")),
         h("div", {}, h("h2", { text: "1. Начальный этап — Пояснение прав доступа" }), h("p", { text: "Ознакомьтесь с выданными правами и порядком получения доступа в игре." }))
       ),
       h("div", { class: "row-list training-info-list" },
@@ -532,7 +532,7 @@ async function renderTraining(view, route) {
         infoRow("chat", "Игровой чат", "i-message",
           h("p", {}, h("strong", { text: "Игровой чат" }), " - чат расположенный в левой части игрового экрана, с которым ты можешь взаимодействовать и где активно происходит обсуждение между танкистами. Твоя первостепенная задача во время дежурства - это мониторить игровой чат на предметы: Оскорбления, Нецензурная брань, Реклама, Деструктивные и Политические темы. Подробнее о материалах (включая сообщения в игровом чате) наущающие правила игры и сообщества ты можешь узнать и прочитать в разделе обучения «Административный аппарат».")
         ),
-        infoRow("spectator", "Режим наблюдателя", "i-monitor",
+        infoRow("spectator", "Режим наблюдателя", "i-eye",
           h("p", {}, "Когда тебе выдадут админ-доступ в игре, в описании и подробностях каждой нажатой тобой битвы, в правом верхнем углу, появится кнопка ", h("strong", { text: "«Spectator»" }), ", по нажатию которой, тебя загрузит в битву, но уже в режиме наблюдателя. В нём ты не можешь стрелять, ездить и писать в чат: Только наблюдать."),
           h("p", { text: "Сам режим предназначен для администрации проекта, а конкретно для мониторинга игровых битв, собирания доказательств в виде видеозаписей и скриншотов нарушений (читы, нецензурная брань, реклама, ботоводство и т.д), а также для проведения турниров и возможности записи их." }),
           h("p", { text: "В общем режим универсальный, творить можно многое и всякое. Главное используй режим по назначению: Не просиживай в нём много и долго что бы закрыть отчёт. И главное используй с умом. Входи в битвы через него если видишь в битве подозрительных игроков и/или ники, а также по прямым жалобам игроков, будто на форуме, в группе ВК или игровом чате." })
@@ -549,7 +549,7 @@ async function renderTraining(view, route) {
     const docsUrl = "https://service-mytanks.github.io/MT-DOCS/";
     const reportCard = h("section", { class: "card" },
       h("div", { class: "card-heading" },
-        h("span", { class: "section-icon" }, icon("i-doc")),
+        h("span", { class: "section-icon" }, icon("i-clipboard-check")),
         h("div", {}, h("h2", { text: "3. Финальный этап — Система отчётности MT DOCS" }), h("p", { text: "Порядок ежедневной сдачи служебной отчётности." }))
       ),
       h("div", { class: "training-report-body" },
@@ -595,7 +595,7 @@ async function renderTraining(view, route) {
 
     view.append(
       pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", route.section, "Знакомство с форумом MyTanks и правилами работы с административными разделами."),
-      forumStageCard("1. Начальный этап — Права доступа и информация о форуме", "Познакомься с назначением форума и правилами доступа к закрытым разделам.", "i-book-open",
+      forumStageCard("1. Начальный этап — Права доступа и информация о форуме", "Познакомься с назначением форума и правилами доступа к закрытым разделам.", "i-messages",
         h("div", { class: "row-list training-info-list" },
           h("div", { class: "training-info-item" },
             h("button", { type: "button", class: "training-info-trigger", popovertarget: "forum-about-popover", "aria-label": "Открыть раздел: Что такое форум?" },
@@ -759,16 +759,16 @@ async function renderTraining(view, route) {
 
   const finalStage = h("section", { class: "card training-final-stage" },
     h("div", { class: "card-heading" },
-      h("span", { class: "section-icon" }, icon("i-book-open")),
+      h("span", { class: "section-icon" }, icon("i-clipboard-list")),
       h("div", {}, h("h2", { text: "3. Финальный этап" }), h("p", { text: "Изучите регламенты и утверждённые формы документов." }))),
     h("div", { class: "training-subsections" },
-      finalSubsection("Регламенты", "i-doc", [
-        rowLink({ href: links.textAttestation, iconName: "i-doc", title: "Регламент текстовой аттестации", text: "Раздел с правилами и материалами текстовой аттестации.", external: true }),
-        rowLink({ href: links.audioMeeting, iconName: "i-message", title: "Регламент аудиосозвона", text: "Раздел с правилами проведения аудиосозвона.", external: true })
+      finalSubsection("Регламенты", "i-clipboard-list", [
+        rowLink({ href: links.textAttestation, iconName: "i-file-check", title: "Регламент текстовой аттестации", text: "Раздел с правилами и материалами текстовой аттестации.", external: true }),
+        rowLink({ href: links.audioMeeting, iconName: "i-mic", title: "Регламент аудиосозвона", text: "Раздел с правилами проведения аудиосозвона.", external: true })
       ]),
-      finalSubsection("Шаблоны заявлений и форм прошения", "i-check", [
-        rowLink({ href: links.applications, iconName: "i-doc", title: "Шаблоны заявлений", text: "Утверждённые формы заявлений.", external: true }),
-        rowLink({ href: links.requests, iconName: "i-check", title: "Шаблоны форм прошения", text: "Утверждённые формы прошений.", external: true })
+      finalSubsection("Шаблоны заявлений и форм прошения", "i-files", [
+        rowLink({ href: links.applications, iconName: "i-file-plus", title: "Шаблоны заявлений", text: "Утверждённые формы заявлений.", external: true }),
+        rowLink({ href: links.requests, iconName: "i-mail", title: "Шаблоны форм прошения", text: "Утверждённые формы прошений.", external: true })
       ])
     ),
     h("p", { class: "training-mandatory-note", text: "Обязательно изучите все темы, содержащиеся в этих разделах!" })
@@ -776,15 +776,15 @@ async function renderTraining(view, route) {
 
   view.append(
     pageHeading("ОБУЧЕНИЕ СОТРУДНИКОВ", route.section, "Последовательная подготовка к работе в административном аппарате MyTanks."),
-    card("1. Начальный этап — Знакомство со структурой", "Изучите иерархию проекта, значения должностей и систему нормативов.", "i-book-open", [
-      rowLink({ href: links.positions, iconName: "i-doc", title: "Значение должностей", text: "Первый обязательный материал для каждого новичка — знакомство с иерархией и смыслом должностей.", external: true }),
-      rowLink({ href: links.hierarchy, iconName: "i-doc", title: "Официальная таблица иерархий и должностей", text: "Актуальная таблица должностей и структуры проекта MyTanks.", external: true }),
-      rowLink({ href: links.rewards, iconName: "i-check", title: "Система нормативов и вознаграждений", text: "Нормативы работы сотрудников и предусмотренные вознаграждения.", external: true })
+    card("1. Начальный этап — Знакомство со структурой", "Изучите иерархию проекта, значения должностей и систему нормативов.", "i-network", [
+      rowLink({ href: links.positions, iconName: "i-id-card", title: "Значение должностей", text: "Первый обязательный материал для каждого новичка — знакомство с иерархией и смыслом должностей.", external: true }),
+      rowLink({ href: links.hierarchy, iconName: "i-network", title: "Официальная таблица иерархий и должностей", text: "Актуальная таблица должностей и структуры проекта MyTanks.", external: true }),
+      rowLink({ href: links.rewards, iconName: "i-award", title: "Система нормативов и вознаграждений", text: "Нормативы работы сотрудников и предусмотренные вознаграждения.", external: true })
     ]),
     (() => {
-      const section = card("2. Промежуточный этап — Работа с обращениями", "Изучите правила проекта и обязанности сотрудников перед началом самостоятельной работы.", "i-message", [
-        rowLink({ href: links.playerRules, iconName: "i-shield", title: "Правила для игроков", text: "Общие правила, запреты и наказания на сервере MyTanks.", external: true }),
-        rowLink({ href: links.helperRules, iconName: "i-user", title: "Правила для агентов поддержки (хелперов)", text: "Обязанности и правила работы агентов поддержки.", external: true }),
+      const section = card("2. Промежуточный этап — Работа с обращениями", "Изучите правила проекта и обязанности сотрудников перед началом самостоятельной работы.", "i-life-buoy", [
+        rowLink({ href: links.playerRules, iconName: "i-scale", title: "Правила для игроков", text: "Общие правила, запреты и наказания на сервере MyTanks.", external: true }),
+        rowLink({ href: links.helperRules, iconName: "i-life-buoy", title: "Правила для агентов поддержки (хелперов)", text: "Обязанности и правила работы агентов поддержки.", external: true }),
         rowLink({ href: links.adminRules, iconName: "i-shield", title: "Правила для администрации проекта", text: "Регламент работы и обязанности администрации.", external: true })
       ]);
       const help = h("div", { class: "training-help" },

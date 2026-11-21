@@ -13,10 +13,10 @@
   <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
   <link rel="shortcut icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
-  <link rel="stylesheet" href="./styles.css?v=9">
+  <link rel="stylesheet" href="./styles.css?v=10">
   <script src="./vendor/supabase.js?v=2.119.1" defer></script>
   <script src="./config.js?v=2" defer></script>
-  <script src="./app.js?v=13" defer></script>
+  <script src="./app.js?v=14" defer></script>
 </head>
 <body>
   <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -49,6 +49,20 @@
     <symbol id="i-help-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.1 1.9c-1 .8-1.7 1.2-1.7 2.6M12 17h.01"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h7M15 6h5M4 12h3M11 12h9M4 18h9M17 18h3"/><circle cx="13" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M9 4.5h6v3H9zM8 14l2.5 2.5L16 11"/></symbol>
+    <symbol id="i-messages" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.2-4A7.5 7.5 0 1 1 20 11.5z"/><path d="M9 7h8M9 11h6"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-5h14v5"/></symbol>
+    <symbol id="i-id-card" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="2"/><circle cx="8" cy="10" r="2.5"/><path d="M4.5 17a3.5 3.5 0 0 1 7 0M14 9h4M14 13h4M14 17h3"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="m8.5 13-1 8 4.5-2 4.5 2-1-8M9.5 8l1.7 1.7L15 6"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 6h14M7 6l-4 8h8L7 6zM17 6l-4 8h8l-4-8zM7 21h10"/></symbol>
+    <symbol id="i-life-buoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="m5.6 5.6 4.3 4.3m4.2 4.2 4.3 4.3m0-12.8-4.3 4.3m-4.2 4.2-4.3 4.3"/></symbol>
+    <symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"/><path d="M9 4.5h6v3H9zM8 12h2m3 0h4M8 16h2m3 0h4"/></symbol>
+    <symbol id="i-file-check" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 15l2.5 2.5L16 12"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></symbol>
+    <symbol id="i-files" viewBox="0 0 24 24"><path d="M7 7V4a2 2 0 0 1 2-2h9l4 4v12a2 2 0 0 1-2 2h-3M7 7h9l4 4M16 7v4h4M3 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/></symbol>
+    <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6"/><path d="M12 12v6M9 15h6"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></symbol>
     <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.7 2.9-.2-.1a1.7 1.7 0 0 0-1.9.3l-.1.1h-3.4l-.1-.2a1.7 1.7 0 0 0-1.6-1.1 1.7 1.7 0 0 0-.9.3l-.2.1L6.8 17l.1-.2a1.7 1.7 0 0 0-.3-1.9l-.1-.1v-3.4l.2-.1a1.7 1.7 0 0 0 1.1-1.6 1.7 1.7 0 0 0-.3-.9l-.1-.2 2.9-1.7.2.1a1.7 1.7 0 0 0 1.9-.3l.1-.1h3.4l.1.2a1.7 1.7 0 0 0 1.6 1.1 1.7 1.7 0 0 0 .9-.3l.2-.1 1.7 2.9-.1.2a1.7 1.7 0 0 0 .3 1.9l.1.1v3.4z"/></symbol>
   </defs></svg>
 
@@ -130,8 +144,8 @@
         <a class="nav-item" href="#/home" data-nav="home"><svg><use href="#i-monitor"/></svg>Главная</a>
         <a class="nav-item" href="#/reports" data-nav="reports"><svg><use href="#i-doc"/></svg>Отчёты</a>
         <div class="nav-group">
-          <button type="button" class="nav-item nav-toggle" id="monitoring-toggle" aria-expanded="true" aria-controls="monitoring-items"><svg><use href="#i-monitor"/></svg>Мониторинг игры<svg class="chevron"><use href="#i-chevron"/></svg></button>
-          <div class="nav-sub" id="monitoring-items">
+          <button type="button" class="nav-item nav-toggle" id="monitoring-toggle" aria-expanded="false" aria-controls="monitoring-items"><svg><use href="#i-monitor"/></svg>Мониторинг игры<svg class="chevron"><use href="#i-chevron"/></svg></button>
+          <div class="nav-sub" id="monitoring-items" hidden>
             <a class="nav-item" href="#/blocks" data-nav="blocks"><svg><use href="#i-lock"/></svg>Блокировки</a>
           </div>
         </div>
