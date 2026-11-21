@@ -665,8 +665,58 @@ async function renderTraining(view, route) {
           )
         )
       ),
-      forumStageCard("3. Финальный этап — Работа с обращениями и создание тем", "Материалы этого этапа будут добавлены отдельно.", "i-message",
-        h("div", { class: "training-report-body" }, emptyBlock("i-doc", "Материалы скоро появятся", "Содержание финального этапа будет добавлено следующим обновлением."))
+      forumStageCard("3. Финальный этап — Работа с обращениями и создание тем", "Изучите порядок обработки обращений, создания тем и применения префиксов.", "i-message",
+        h("div", { class: "training-subsections" },
+          h("details", { class: "training-subsection" },
+            h("summary", {}, h("span", { class: "section-icon" }, icon("i-message")), h("strong", { text: "Что такое «обращение»?" }), icon("i-chevron", "training-subsection-chevron")),
+            h("div", { class: "training-report-body" },
+              h("p", {}, h("strong", { text: "Обращение" }), " — это тема, созданная игроком (пользователем с зарегистрированной учётной записью) в соответствующем разделе форума для решения его вопроса или проблемы.")
+            )
+          ),
+          h("details", { class: "training-subsection" },
+            h("summary", {}, h("span", { class: "section-icon" }, icon("i-inbox")), h("strong", { text: "Работа с обращениями" }), icon("i-chevron", "training-subsection-chevron")),
+            h("div", { class: "training-report-body" },
+              h("p", { text: "Одна из основных задач каждого администратора, помимо мониторинга игры, — работа с форумом и поступающими от игроков обращениями." }),
+              h("p", {}, h("strong", { text: "Работа с обращениями" }), " подразумевает ежедневный мониторинг форума на предмет новых жалоб, обжалований, вопросов и предложений. Это одна из должностных обязанностей каждого администратора при работе с форумом."),
+              h("p", {}, "Все обращения, поступающие от игроков, ", h("strong", { text: "не должны оставаться без ответа более 72 часов (трёх суток)." }), " Даже если у вас или вашей команды нет возможности ответить — например, из-за нехватки знаний, опыта или необходимых компетенций, — ", h("strong", { text: "вы обязаны передать информацию в общую группу администрации." }))
+            )
+          ),
+          h("details", { class: "training-subsection" },
+            h("summary", {}, h("span", { class: "section-icon" }, icon("i-edit")), h("strong", { text: "Создание и редактор тем" }), icon("i-chevron", "training-subsection-chevron")),
+            h("div", { class: "training-report-body" },
+              h("p", { text: "Создание тем и ответов — ключевой навык, необходимый для полноценной работы в администрации." }),
+              h("blockquote", { class: "training-report-quote", text: "«Нету ручек — нет конфеток». Знакомо, да?" }),
+              h("p", {}, "Принцип здесь такой же: навык создания и оформления тем необходим в повседневной работе. В большинстве разделов форума, за исключением закрытых, доступен редактор тем. Иногда он может казаться неудобным, но основные задачи выполняет: ", h("strong", { text: "позволяет создавать темы и редактировать их." }))
+            )
+          ),
+          h("details", { class: "training-subsection" },
+            h("summary", {}, h("span", { class: "section-icon" }, icon("i-tag")), h("strong", { text: "«Префиксы» тем и обращений" }), icon("i-chevron", "training-subsection-chevron")),
+            h("div", { class: "training-report-body training-prefix-content" },
+              h("p", { text: "Каждой новой теме, созданной игроком, автоматически присваивается префикс «Прошу рассмотреть». Он обозначает, что обращение ожидает внимания администрации." }),
+              h("p", { text: "Администраторы, имеющие доступ к инструментам модерации, могут изменять префикс в зависимости от текущего статуса и назначения темы." }),
+              h("p", {}, h("strong", { text: "Всего используется 13 префиксов:" }), " один устанавливается автоматически, остальные 12 администрация назначает по ходу работы с темой."),
+              h("div", { class: "training-prefix-default" },
+                h("span", { class: "training-prefix-chip" }, "Прошу рассмотреть"),
+                h("span", { text: "Автоматический префикс для новых обращений." })
+              ),
+              h("p", { class: "training-prefix-intro", text: "Остальные префиксы сгруппированы по цветам. Цвет помогает быстро определить важность темы или её текущий статус." }),
+              ...[
+                { tone: "red", title: "Красный", description: "Обозначает важность темы, её закрытие или отклонение (в том числе отказ по анкетной заявке кандидата).", labels: ["Важно", "Команде проекта", "Закрыто", "Отклонено"] },
+                { tone: "yellow", title: "Жёлтый", description: "Показывает, что тема находится на рассмотрении или закреплена.", labels: ["На рассмотрении", "Закреплено"] },
+                { tone: "green", title: "Зелёный", description: "Используется для тем, по которым принято положительное решение или выполнены необходимые действия.", labels: ["Реализовано", "Рассмотрено", "Одобрено", "Принято"] },
+                { tone: "blue", title: "Голубой", description: "Указывает на технический статус темы или ожидание ответа либо дальнейших действий.", labels: ["Тех. Специалисту", "Ожидание"] }
+              ].map((group) => h("section", { class: `training-prefix-group training-prefix-${group.tone}` },
+                h("div", { class: "training-prefix-heading" },
+                  h("span", { class: "training-prefix-swatch" }),
+                  h("strong", { text: group.title }),
+                  h("span", { class: "training-prefix-count", text: String(group.labels.length) })
+                ),
+                h("p", { text: group.description }),
+                h("div", { class: "training-prefix-list" }, ...group.labels.map((label) => h("span", { class: "training-prefix-chip", text: label })))
+              ))
+            )
+          )
+        )
       )
     );
     return;
