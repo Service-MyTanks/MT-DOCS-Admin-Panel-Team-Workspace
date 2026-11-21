@@ -754,3 +754,28 @@ html[data-theme="new-year"] .card-heading { padding-right: 62px; }
 @media (prefers-reduced-motion: reduce) {
   .training-tree-toggle svg { transition: none; }
 }
+
+
+/* Forum training: moderation prefix legend */
+.training-prefix-content { display: grid; gap: 14px; }
+.training-prefix-content > p { margin: 0; }
+.training-prefix-default { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--input); }
+.training-prefix-default > span:last-child { color: var(--muted); font-size: 12px; }
+.training-prefix-intro { margin-top: 2px !important; }
+.training-prefix-group { padding: 13px; border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px; background: var(--input); }
+.training-prefix-heading { display: flex; align-items: center; gap: 9px; }
+.training-prefix-heading strong { font-size: 13px; }
+.training-prefix-swatch { width: 10px; height: 10px; border-radius: 3px; background: currentColor; }
+.training-prefix-count { margin-left: auto; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.training-prefix-group > p { margin: 7px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.training-prefix-list { display: flex; flex-wrap: wrap; gap: 7px; }
+.training-prefix-chip { display: inline-flex; align-items: center; padding: 5px 9px; border: 1px solid currentColor; border-radius: 6px; font-size: 11px; font-weight: 600; line-height: 1.35; }
+.training-prefix-red { color: #e45b63; background: #e45b6310; border-left-color: #e45b63; }
+.training-prefix-yellow { color: #c89a28; background: #c89a2810; border-left-color: #c89a28; }
+.training-prefix-green { color: #39a66b; background: #39a66b10; border-left-color: #39a66b; }
+.training-prefix-blue { color: #3b9bc4; background: #3b9bc410; border-left-color: #3b9bc4; }
+.training-prefix-group .training-prefix-chip { background: color-mix(in srgb, currentColor 10%, transparent); }
+@media (max-width: 600px) {
+  .training-prefix-group { padding: 11px; }
+  .training-prefix-chip { font-size: 10px; }
+}
